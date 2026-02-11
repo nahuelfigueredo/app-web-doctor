@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Panel de turnos - Médico</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .panel-container {
+      width: 100%;
+      max-width: 960px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+      padding: 24px;
+    }
+    h1 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-size: 1.6rem;
+      color: #111827;
+    }
+    h2 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1.2rem;
+      color: #111827;
+    }
+    p {
+      margin: 4px 0;
+      color: #4b5563;
+    }
+
+    /* LOGIN */
+    .login-card {
+      max-width: 360px;
+      margin: 0 auto;
+      padding: 20px;
+      border-radius: 12px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+    }
+    .form-group {
+      margin-bottom: 12px;
+    }
+    label {
+      display: block;
+      font-size: 0.9rem;
+      color: #374151;
+      margin-bottom: 4px;
+    }
+    input[type="email"],
+    input[type="password"],
+    input[type="date"] {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    input[type="date"]:focus {
+      border-color: #ec4899;
+      box-shadow: 0 0 0 1px rgba(236, 72, 153, 0.2);
+    }
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #ec4899, #f97316);
+      color: #ffffff;
+      font-weight: 600;
+    }
+    .btn-primary:hover {
+      opacity: 0.95;
+    }
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+      font-weight: 500;
+    }
+
+    .login-message {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    /* PANEL DE TURNOS */
+    .hidden {
+      display: none;
+    }
+
+    .header-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .header-panel-left h1 {
+      margin-bottom: 4px;
+    }
+    .header-panel-left p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+    .header-panel-right button {
+      margin-left: 8px;
+    }
+
+    .panel-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .panel-controls label {
+      margin-bottom: 0;
+      font-size: 0.9rem;
+    }
+    .panel-controls input[type="date"] {
+      max-width: 180px;
+    }
+
+    .tabla-container {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    thead {
+      background: #f9fafb;
+    }
+    th, td {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      font-weight: 600;
+      color: #374151;
+      white-space: nowrap;
+    }
+    tr:hover {
+      background: #f9fafb;
+    }
+
+    select.select-estado {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      font-size: 0.85rem;
+      background: #ffffff;
+    }
+
+    .estado-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    .estado-pendiente {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .estado-confirmado {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .estado-cancelado {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    #mensajeSinTurnos {
+      font-size: 0.9rem;
+    }
+    .resumen-dia {
+      margin-top: 4px;
+      font-size: 0.9rem;
+      color: #4b5563;
+    }
+
+    @media (max-width: 640px) {
+      .panel-container {
+        padding: 16px;
+      }
+      h1 {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="panel-container">
+
+    <!-- VISTA LOGIN -->
+    <div id="loginView">
+      <h1>Panel de turnos</h1>
+      <p>Ingresá con tu usuario y contraseña de médico para ver y gestionar los turnos.</p>
+
+      <div class="login-card">
+        <div class="form-group">
+          <label for="emailLogin">Email</label>
+          <input type="email" id="emailLogin" placeholder="tu-correo@ejemplo.com" />
+        </div>
+        <div class="form-group">
+          <label for="passwordLogin">Contraseña</label>
+          <input type="password" id="passwordLogin" placeholder="********" />
+        </div>
+        <button id="btnLogin" class="btn-primary" type="button">Entrar</button>
+        <p id="loginMessage" class="login-message"></p>
+      </div>
+    </div>
+
+    <!-- VISTA PANEL -->
+    <div id="panelView" class="hidden">
+      <div class="header-panel">
+        <div class="header-panel-left">
+          <h1>Turnos del consultorio</h1>
+          <p id="textoUsuario"></p>
+        </div>
+        <div class="header-panel-right">
+          <button id="btnLogout" class="btn-secondary" type="button">Cerrar sesión</button>
+        </div>
+      </div>
+
+      <div class="panel-controls">
+        <label for="filtroFecha">Filtrar por fecha:</label>
+        <input type="date" id="filtroFecha" />
+        <button id="btnHoy" class="btn-secondary" type="button">Ver turnos de hoy</button>
+        <button id="btnTodos" class="btn-secondary" type="button">Ver todos</button>
+      </div>
+
+      <p id="mensajeSinTurnos" style="display:none; color:#6b7280; margin-top:4px;">
+        No hay turnos para esta fecha.
+      </p>
+      <p id="resumenDia" class="resumen-dia" style="display:none;"></p>
+
+      <div class="tabla-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>Paciente</th>
+              <th>Email</th>
+              <th>Teléfono</th>
+              <th>Motivo</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="turnosTableBody">
+            <!-- Filas generadas por JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const loginView = document.getElementById('loginView');
+    const panelView = document.getElementById('panelView');
+    const emailLogin = document.getElementById('emailLogin');
+    const passwordLogin = document.getElementById('passwordLogin');
+    const btnLogin = document.getElementById('btnLogin');
+    const loginMessage = document.getElementById('loginMessage');
+
+    const btnLogout = document.getElementById('btnLogout');
+    const textoUsuario = document.getElementById('textoUsuario');
+
+    const filtroFechaInput = document.getElementById('filtroFecha');
+    const btnHoy = document.getElementById('btnHoy');
+    const btnTodos = document.getElementById('btnTodos');
+    const mensajeSinTurnos = document.getElementById('mensajeSinTurnos');
+    const resumenDia = document.getElementById('resumenDia');
+    const turnosTableBody = document.getElementById('turnosTableBody');
+
+    let token = null;
+    let todosLosTurnos = [];
+
+    function mostrarLogin() {
+      loginView.classList.remove('hidden');
+      panelView.classList.add('hidden');
+      textoUsuario.textContent = '';
+    }
+
+    function mostrarPanel() {
+      loginView.classList.add('hidden');
+      panelView.classList.remove('hidden');
+    }
+
+    async function login() {
+      loginMessage.style.display = 'none';
+      loginMessage.textContent = '';
+
+      const email = emailLogin.value.trim();
+      const password = passwordLogin.value.trim();
+
+      if (!email || !password) {
+        loginMessage.style.display = 'block';
+        loginMessage.style.color = '#b91c1c';
+        loginMessage.textContent = 'Completá email y contraseña.';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          const msg = data.message || 'Error al iniciar sesión.';
+          loginMessage.style.display = 'block';
+          loginMessage.style.color = '#b91c1c';
+          loginMessage.textContent = msg;
+          return;
+        }
+
+        const data = await res.json();
+        token = data.token;
+        const medicoEmail = data.email || email;
+
+        textoUsuario.textContent = `Sesión iniciada como: ${medicoEmail}`;
+        emailLogin.value = '';
+        passwordLogin.value = '';
+
+        mostrarPanel();
+        await cargarTurnos();
+      } catch (error) {
+        console.error(error);
+        loginMessage.style.display = 'block';
+        loginMessage.style.color = '#b91c1c';
+        loginMessage.textContent = 'No se pudo conectar con el servidor.';
+      }
+    }
+
+    async function cargarTurnos() {
+      if (!token) return;
+
+      try {
+        const res = await fetch('/api/turnos', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) {
+            alert('Tu sesión ha expirado. Volvé a iniciar sesión.');
+            token = null;
+            mostrarLogin();
+            return;
+          }
+          throw new Error('Error al obtener turnos');
+        }
+
+        todosLosTurnos = await res.json();
+        renderTurnos();
+      } catch (error) {
+        console.error(error);
+        alert('Error al cargar los turnos.');
+      }
+    }
+
+    function renderTurnos() {
+      const fechaFiltro = filtroFechaInput.value; // "" o "YYYY-MM-DD"
+      let turnosFiltrados = todosLosTurnos.slice();
+
+      if (fechaFiltro) {
+        turnosFiltrados = turnosFiltrados.filter(t => t.fecha === fechaFiltro);
+      }
+
+      // Orden por fecha y hora
+      turnosFiltrados.sort((a, b) => {
+        if (a.fecha === b.fecha) {
+          return (a.hora || '').localeCompare(b.hora || '');
+        }
+        return a.fecha.localeCompare(b.fecha);
+      });
+
+      turnosTableBody.innerHTML = '';
+
+      if (turnosFiltrados.length === 0) {
+        mensajeSinTurnos.style.display = 'block';
+        resumenDia.style.display = 'none';
+        return;
+      }
+
+      mensajeSinTurnos.style.display = 'none';
+
+      // Resumen de estados
+      let pendientes = 0;
+      let confirmados = 0;
+      let cancelados = 0;
+
+      turnosFiltrados.forEach(turno => {
+        if (turno.estado === 'confirmado') confirmados++;
+        else if (turno.estado === 'cancelado') cancelados++;
+        else pendientes++;
+      });
+
+      const textoFecha = fechaFiltro
+        ? `para el día ${fechaFiltro}`
+        : 'en total';
+
+      resumenDia.textContent =
+        `Turnos ${textoFecha}: ${turnosFiltrados.length} (Pendientes: ${pendientes}, Confirmados: ${confirmados}, Cancelados: ${cancelados})`;
+      resumenDia.style.display = 'block';
+
+      turnosFiltrados.forEach(turno => {
+        const tr = document.createElement('tr');
+
+        const claseEstado =
+          turno.estado === 'confirmado' ? 'estado-confirmado' :
+          turno.estado === 'cancelado' ? 'estado-cancelado' :
+          'estado-pendiente';
+
+        tr.innerHTML = `
+          <td>${turno.fecha || ''}</td>
+          <td>${turno.hora || ''}</td>
+          <td>${turno.nombre || ''}</td>
+          <td>${turno.email || ''}</td>
+          <td>${turno.telefono || ''}</td>
+          <td>${turno.motivo || ''}</td>
+          <td>
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <span class="estado-badge ${claseEstado}">
+                ${turno.estado ? turno.estado.charAt(0).toUpperCase() + turno.estado.slice(1) : 'Pendiente'}
+              </span>
+              <select data-id="${turno.id}" class="select-estado">
+                <option value="pendiente" ${turno.estado === 'pendiente' ? 'selected' : ''}>Pendiente</option>
+                <option value="confirmado" ${turno.estado === 'confirmado' ? 'selected' : ''}>Confirmado</option>
+                <option value="cancelado" ${turno.estado === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+              </select>
+            </div>
+          </td>
+        `;
+
+        turnosTableBody.appendChild(tr);
+      });
+
+      // Listener para cambios de estado
+      document.querySelectorAll('.select-estado').forEach(select => {
+        select.addEventListener('change', async (e) => {
+          const id = e.target.getAttribute('data-id');
+          const nuevoEstado = e.target.value;
+          await actualizarEstadoTurno(id, nuevoEstado);
+        });
+      });
+    }
+
+    async function actualizarEstadoTurno(id, estado) {
+  if (!token) return;
+  try {
+    const res = await fetch(`/api/turnos/${id}`, {
+      method: 'PATCH', // coincide con tu backend
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ estado })
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      console.error('Error al actualizar turno:', res.status, errorData);
+      throw new Error(errorData.error || 'Error al actualizar el estado del turno');
+    }
+
+    const turnoActualizado = await res.json();
+
+    // Actualizar array en memoria
+    const idx = todosLosTurnos.findIndex(t => String(t.id) === String(id));
+    if (idx !== -1) {
+      todosLosTurnos[idx].estado = turnoActualizado.estado;
+    }
+
+    renderTurnos();
+  } catch (error) {
+    console.error(error);
+    alert(error.message || 'No se pudo actualizar el estado del turno.');
+  }
+}
+
+    // Botón Ver turnos de hoy
+    btnHoy.addEventListener('click', () => {
+      const hoy = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+      filtroFechaInput.value = hoy;
+      renderTurnos();
+    });
+
+    // Botón Ver todos (quitar filtro = "volver atrás")
+    btnTodos.addEventListener('click', () => {
+      filtroFechaInput.value = '';
+      renderTurnos();
+    });
+
+    // Cambio manual en el filtro de fecha
+    filtroFechaInput.addEventListener('change', () => {
+      renderTurnos();
+    });
+
+    btnLogin.addEventListener('click', login);
+
+    passwordLogin.addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') login();
+    });
+
+    btnLogout.addEventListener('click', () => {
+      token = null;
+      todosLosTurnos = [];
+      filtroFechaInput.value = '';
+      turnosTableBody.innerHTML = '';
+      mensajeSinTurnos.style.display = 'none';
+      resumenDia.style.display = 'none';
+      mostrarLogin();
+    });
+  </script>
+</body>
+</html>
