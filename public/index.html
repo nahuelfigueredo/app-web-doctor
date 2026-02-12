@@ -42,28 +42,28 @@
       box-shadow: 0 12px 30px rgba(244, 114, 182, 0.25);
     }
 
-    /* AVATAR CON FOTO */
+    /* AVATAR */
     .avatar-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 18px;
-}
-.avatar {
-  width: 140px;          /* antes 96px */
-  height: 140px;         /* antes 96px */
-  border-radius: 15%;
-  overflow: hidden;
-  border: 6px solid #fce7f3;  /* un borde apenas más ancho */
-  box-shadow: 0 6px 14px rgba(244, 114, 182, 0.45);
-  background: radial-gradient(circle at 60% 50%, #f97316, #ec4899);
-}
-.avatar img {
-  width: 100%;
-  height: 100%;
-  border-radius: 15%;
-  object-fit: cover;
-  object-position: center 1%;  /* podés ajustar este valor si querés subir/bajar la cara */
-}
+      display: flex;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+    .avatar {
+      width: 140px;
+      height: 140px;
+      border-radius: 15%;
+      overflow: hidden;
+      border: 6px solid #fce7f3;
+      box-shadow: 0 6px 14px rgba(244, 114, 182, 0.45);
+      background: radial-gradient(circle at 60% 50%, #f97316, #ec4899);
+    }
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 15%;
+      object-fit: cover;
+      object-position: center 1%;
+    }
 
     .doctor-info {
       text-align: center;
@@ -84,9 +84,7 @@
       text-decoration: none;
       font-weight: 500;
     }
-    .doctor-info a:hover {
-      text-decoration: underline;
-    }
+    .doctor-info a:hover { text-decoration: underline; }
     .doctor-info p {
       margin: 0;
       color: #4b5563;
@@ -94,7 +92,7 @@
       line-height: 1.4;
     }
 
-     /* ÍCONOS REDONDOS (Instagram, Facebook, Maps) */
+    /* ÍCONOS */
     .icons-row {
       display: flex;
       justify-content: center;
@@ -113,11 +111,8 @@
       box-shadow: 0 4px 10px rgba(148, 163, 184, 0.35);
       text-decoration: none;
     }
-    .icon-circle img {
-      width: 22px;
-      height: 22px;
-      display: block;
-    }
+    .icon-circle img { width: 22px; height: 22px; display: block; }
+
     .main-actions {
       display: flex;
       flex-direction: column;
@@ -148,12 +143,6 @@
       font-weight: 500;
       box-shadow: 0 6px 16px rgba(148, 163, 184, 0.3);
     }
-    .btn-tertiary {
-      background: #eff6ff;
-      color: #111827;
-      font-weight: 500;
-      box-shadow: 0 4px 12px rgba(148, 163, 184, 0.25);
-    }
     .btn-icon {
       width: 24px;
       height: 24px;
@@ -163,13 +152,6 @@
       align-items: center;
       justify-content: center;
       font-size: 0.9rem;
-    }
-
-    .section-title {
-      margin: 14px 0 6px;
-      font-size: 0.98rem;
-      font-weight: 600;
-      color: #111827;
     }
 
     form {
@@ -186,10 +168,7 @@
       flex-direction: column;
       gap: 3px;
     }
-    label {
-      font-size: 0.8rem;
-      color: #374151;
-    }
+    label { font-size: 0.8rem; color: #374151; }
     input[type="text"],
     input[type="email"],
     input[type="tel"],
@@ -215,10 +194,7 @@
       min-height: 54px;
       max-height: 120px;
     }
-    .small-hint {
-      font-size: 0.7rem;
-      color: #6b7280;
-    }
+    .small-hint { font-size: 0.7rem; color: #6b7280; }
 
     .booking-message {
       margin-top: 2px;
@@ -233,15 +209,12 @@
       text-align: center;
     }
 
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
   <div class="phone-frame">
     <div class="screen">
-      <!-- Avatar + info doctora -->
       <div class="avatar-wrapper">
         <div class="avatar">
           <img src="./img/doctora.jpeg" alt="Dra. Zuchelli Vanina Andrea" />
@@ -259,7 +232,6 @@
         </p>
       </div>
 
-     <!-- Íconos: Instagram, Facebook, Maps -->
       <div class="icons-row">
         <a href="https://www.instagram.com" target="_blank" class="icon-circle" title="Instagram">
           <img src="./img/instagram.png" alt="Instagram" />
@@ -282,13 +254,9 @@
           <span class="btn-icon">💬</span>
           <span>WhatsApp</span>
         </a>
-
-       
       </div>
 
-      
-
-      <!-- FORMULARIO OCULTO AL INICIO -->
+      <!-- FORMULARIO -->
       <form id="turnoForm" class="hidden" novalidate>
         <div class="form-group">
           <label for="fecha">Fecha del turno</label>
@@ -301,9 +269,7 @@
           <select id="hora" name="hora" required>
             <option value="">Elegí primero una fecha</option>
           </select>
-          <p class="small-hint">
-            Los horarios ocupados o pasados se muestran como no disponibles.
-          </p>
+          <p class="small-hint">Los horarios ocupados o pasados se muestran como no disponibles.</p>
         </div>
 
         <div class="form-group">
@@ -326,16 +292,11 @@
           <textarea id="motivo" name="motivo"></textarea>
         </div>
 
-        <button type="submit" class="btn btn-primary">
-          Enviar solicitud de turno
-        </button>
-
+        <button type="submit" class="btn btn-primary">Enviar solicitud de turno</button>
         <p id="bookingMessage" class="booking-message"></p>
       </form>
 
-      <div class="footer-note">
-        Creado por MCNdigitalstudio.
-      </div>
+      <div class="footer-note">Creado por MCNdigitalstudio.</div>
     </div>
   </div>
 
@@ -347,24 +308,18 @@
     const btnReservarTurno = document.getElementById('btnReservarTurno');
 
     // Horarios de la doctora: 17:00 a 18:30 cada 15 minutos
-    const HORARIOS = [
-      '17:00',
-      '17:15',
-      '17:30',
-      '17:45',
-      '18:00',
-      '18:15',
-      '18:30'
-    ];
+    const HORARIOS = ['17:00','17:15','17:30','17:45','18:00','18:15','18:30'];
 
     let turnosCache = [];
 
     // 1) Cargar turnos existentes (públicos) desde el backend
     async function cargarTurnosCache() {
       try {
-        const res = await fetch('/api/turnos-public');
-        if (!res.ok) throw new Error();
-        turnosCache = await res.json();
+        // cache: 'no-store' evita que el navegador te sirva una respuesta vieja
+        const res = await fetch('/api/turnos-public', { cache: 'no-store' });
+        if (!res.ok) throw new Error('Respuesta no OK');
+        const data = await res.json();
+        turnosCache = Array.isArray(data) ? data : [];
       } catch (e) {
         console.error('Error al cargar turnos existentes', e);
         turnosCache = [];
@@ -377,16 +332,30 @@
       const [anio, mes, dia] = fechaStr.split('-').map(Number);
       const fecha = new Date(anio, mes - 1, dia);
       const diaSemana = fecha.getDay();
-      // 0 = domingo, 1 = lunes, 2 = martes, 3 = miércoles, 4 = jueves, 5 = viernes, 6 = sábado
+      // 0 dom, 1 lun, 2 mar, 3 mié, 4 jue, 5 vie, 6 sáb
       return diaSemana >= 2 && diaSemana <= 5;
     }
 
-    // 3) Obtener horarios ocupados para una fecha
+    // ✅ 3) Fix definitivo:
+    // Marcamos "ocupado" SOLO si hay datos de paciente (reserva real).
     function getHorariosOcupadosParaFecha(fechaSeleccionada) {
       if (!fechaSeleccionada) return [];
+
       return turnosCache
-        .filter(t => t.fecha === fechaSeleccionada && t.estado !== 'cancelado')
-        .map(t => t.hora);
+        .filter(t =>
+          t &&
+          t.fecha === fechaSeleccionada &&
+          t.estado !== 'cancelado' &&
+          (
+            (t.nombre && String(t.nombre).trim().length > 0) ||
+            (t.email && String(t.email).trim().length > 0) ||
+            (t.telefono && String(t.telefono).trim().length > 0) ||
+            t.pacienteId ||
+            t.userId
+          )
+        )
+        .map(t => t.hora)
+        .filter(Boolean);
     }
 
     // 4) Render de horarios disponibles
@@ -444,7 +413,7 @@
           }
         }
 
-        // Si ya existe turno para esa fecha y hora
+        // Si ya existe turno REAL para esa fecha y hora
         if (horariosOcupados.includes(hora)) {
           etiqueta = `${hora} (ocupado)`;
           disabled = true;
@@ -468,9 +437,8 @@
       const nombre = document.getElementById('nombre').value.trim();
       const email = document.getElementById('email').value.trim();
       const telefono = document.getElementById('telefono').value.trim();
-      const motivo = document.getElementById('motivo').value.trim(); // opcional
+      const motivo = document.getElementById('motivo').value.trim();
 
-      // Validamos solo campos obligatorios
       if (!fecha || !hora || !nombre || !email || !telefono) {
         bookingMessage.style.display = 'block';
         bookingMessage.style.color = '#b91c1c';
@@ -500,11 +468,11 @@
 
         bookingMessage.style.display = 'block';
         bookingMessage.style.color = '#15803d';
-        bookingMessage.textContent = 'Tu solicitud fue registrada.  Turno reservado con exito.';
+        bookingMessage.textContent = 'Tu solicitud fue registrada. Turno reservado con éxito.';
 
         document.getElementById('motivo').value = '';
 
-        const numeroWhatsApp = '5492215996743'; // CAMBIAR
+        const numeroWhatsApp = '5492215996743';
         const texto = `Nueva solicitud de turno desde la web:%0A%0A` +
           `Paciente: ${encodeURIComponent(nombre)}%0A` +
           `Fecha: ${encodeURIComponent(fecha)}%0A` +
@@ -538,7 +506,6 @@
 
     turnoForm.addEventListener('submit', enviarTurno);
 
-    // Botón "Reservar turno": muestra el formulario (si estaba oculto) y hace scroll
     btnReservarTurno.addEventListener('click', () => {
       if (turnoForm.classList.contains('hidden')) {
         turnoForm.classList.remove('hidden');
