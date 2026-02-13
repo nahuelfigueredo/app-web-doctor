@@ -322,6 +322,7 @@
     let token = null;
     let todosLosTurnos = [];
     let diasBloqueadosPanel = [];
+    let refrescoInterval = null; // para el refresco automático
 
     function mostrarLogin() {
       loginView.classList.remove('hidden');
@@ -375,6 +376,7 @@
         mostrarPanel();
         await cargarTurnos();
         await cargarConfigPanel();
+        iniciarRefrescoAutomatico(); // empieza el auto-refresco
       } catch (error) {
         console.error(error);
         loginMessage.style.display = 'block';
@@ -397,6 +399,7 @@
           if (res.status === 401 || res.status === 403) {
             alert('Tu sesión ha expirado. Volvé a iniciar sesión.');
             token = null;
+            detenerRefrescoAutomatico();
             mostrarLogin();
             return;
           }
@@ -659,6 +662,23 @@
       }
     }
 
+    function iniciarRefrescoAutomatico() {
+      if (refrescoInterval) return;
+      // refresco cada 30 segundos (30000 ms). Podés subir/bajar este valor.
+      refrescoInterval = setInterval(() => {
+        if (token) {
+          cargarTurnos();
+        }
+      }, 30000);
+    }
+
+    function detenerRefrescoAutomatico() {
+      if (refrescoInterval) {
+        clearInterval(refrescoInterval);
+        refrescoInterval = null;
+      }
+    }
+
     btnBloquearDia.addEventListener('click', bloquearDia);
 
     // Botón Ver turnos de hoy
@@ -692,6 +712,7 @@
       turnosTableBody.innerHTML = '';
       mensajeSinTurnos.style.display = 'none';
       resumenDia.style.display = 'none';
+      detenerRefrescoAutomatico();
       mostrarLogin();
     });
   </script>
