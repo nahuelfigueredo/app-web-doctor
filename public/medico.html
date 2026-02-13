@@ -260,6 +260,17 @@
         <button id="btnTodos" class="btn-secondary" type="button">Ver todos</button>
       </div>
 
+              <!-- Bloque para bloquear días completos de atención -->
+      <div style="margin-top:12px; padding:10px; border-radius:8px; background:#f9fafb; border:1px solid #e5e7eb;">
+        <h2 style="font-size:1rem; margin:0 0 8px;">Días sin atención</h2>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:8px;">
+          <label for="diaBloqueado" style="font-size:0.9rem;">Elegí una fecha para bloquear:</label>
+          <input type="date" id="diaBloqueado" />
+          <button id="btnBloquearDia" class="btn-secondary" type="button">Bloquear día completo</button>
+        </div>
+        <p id="listaDiasBloqueados" style="font-size:0.85rem; color:#4b5563; margin:0;"></p>
+      </div>
+
       <p id="mensajeSinTurnos" style="display:none; color:#6b7280; margin-top:4px;">
         No hay turnos para esta fecha.
       </p>
@@ -303,6 +314,11 @@
     const mensajeSinTurnos = document.getElementById('mensajeSinTurnos');
     const resumenDia = document.getElementById('resumenDia');
     const turnosTableBody = document.getElementById('turnosTableBody');
+    const diaBloqueadoInput = document.getElementById('diaBloqueado');
+    const btnBloquearDia = document.getElementById('btnBloquearDia');
+    const listaDiasBloqueados = document.getElementById('listaDiasBloqueados');
+
+    let diasBloqueadosPanel = [];
 
     let token = null;
     let todosLosTurnos = [];
@@ -358,6 +374,7 @@
 
         mostrarPanel();
         await cargarTurnos();
+        await cargarConfigPanel();
       } catch (error) {
         console.error(error);
         loginMessage.style.display = 'block';
@@ -513,6 +530,106 @@
     alert(error.message || 'No se pudo actualizar el estado del turno.');
   }
 }
+       async function cargarConfigPanel() {
+      try {
+        const res = await fetch('/api/config-public', { cache: 'no-store' });
+        if (!res.ok) throw new Error('Error config');
+        const data = await res.json();
+        diasBloqueadosPanel = Array.isArray(data.diasBloqueados) ? data.diasBloqueados : [];
+        renderDiasBloqueados();
+      } catch (e) {
+        console.error(e);
+        diasBloqueadosPanel = [];
+        renderDiasBloqueados();
+      }
+    }
+
+    function renderDiasBloqueados() {
+      if (!diasBloqueadosPanel.length) {
+        listaDiasBloqueados.textContent = 'No hay días bloqueados actualmente.';
+        return;
+      }
+
+      listaDiasBloqueados.innerHTML = 'Días bloqueados: ' +
+        diasBloqueadosPanel
+          .map(fecha => `
+            <span style="display:inline-flex; align-items:center; gap:4px; margin-right:6px; margin-bottom:4px; padding:2px 6px; border-radius:999px; background:#fee2e2; color:#991b1b;">
+              ${fecha}
+              <button
+                type="button"
+                style="border:none; background:transparent; color:#991b1b; cursor:pointer; font-size:0.8rem;"
+                onclick="desbloquearDia('${fecha}')"
+              >✕</button>
+            </span>
+          `)
+          .join('');
+    }
+
+    async function bloquearDia() {
+      const fecha = diaBloqueadoInput.value;
+      if (!fecha) {
+        alert('Elegí una fecha para bloquear.');
+        return;
+      }
+      if (!token) {
+        alert('Tenés que iniciar sesión.');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/dias-bloqueados', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ fecha })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || 'No se pudo bloquear el día.');
+          return;
+        }
+        diasBloqueadosPanel = data.diasBloqueados || [];
+        renderDiasBloqueados();
+        alert(`Se bloqueó el día ${fecha}. Ese día no se podrán reservar turnos.`);
+      } catch (e) {
+        console.error(e);
+        alert('Error al bloquear el día.');
+      }
+    }
+
+    async function desbloquearDia(fecha) {
+      if (!confirm(`¿Quitar el bloqueo del día ${fecha}?`)) return;
+      if (!token) {
+        alert('Tenés que iniciar sesión.');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/dias-bloqueados/${fecha}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || 'No se pudo desbloquear el día.');
+          return;
+        }
+        diasBloqueadosPanel = data.diasBloqueados || [];
+        renderDiasBloqueados();
+      } catch (e) {
+        console.error(e);
+        alert('Error al desbloquear el día.');
+      }
+    }
+
+    btnBloquearDia.addEventListener('click', bloquearDia);
+
+
+
 
     // Botón Ver turnos de hoy
     btnHoy.addEventListener('click', () => {
