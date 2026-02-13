@@ -14,6 +14,7 @@ const PORT = process.env.PORT || 3000;
 
 const DATA_FILE = path.join(__dirname, 'turnos.json');
 const MEDICO_FILE = path.join(__dirname, 'medico.json');
+const CONFIG_FILE = path.join(__dirname, 'config.json');
 const JWT_SECRET = process.env.JWT_SECRET || 'cambia-este-secreto-por-uno-mas-largo-y-aleatorio';
 
 // Middlewares
@@ -28,7 +29,11 @@ if (!fs.existsSync(DATA_FILE)) {
 if (!fs.existsSync(MEDICO_FILE)) {
   fs.writeFileSync(MEDICO_FILE, JSON.stringify(null));
 }
+if (!fs.existsSync(CONFIG_FILE)) {
+  fs.writeFileSync(CONFIG_FILE, JSON.stringify({ diasBloqueados: [] }, null, 2));
+}
 
+// ==== Helpers archivos ====
 function leerTurnos() {
   const data = fs.readFileSync(DATA_FILE, 'utf-8') || '[]';
   return JSON.parse(data);
@@ -45,6 +50,15 @@ function leerMedico() {
 
 function guardarMedico(medico) {
   fs.writeFileSync(MEDICO_FILE, JSON.stringify(medico, null, 2));
+}
+
+function leerConfig() {
+  const data = fs.readFileSync(CONFIG_FILE, 'utf-8') || '{}';
+  return JSON.parse(data);
+}
+
+function guardarConfig(config) {
+  fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
 }
 
 // Middleware para verificar token
@@ -107,7 +121,7 @@ app.post('/api/login', async (req, res) => {
 
   const token = jwt.sign({ email: medico.email }, JWT_SECRET, { expiresIn: '7d' });
 
-  return res.json({ token });
+  return res.json({ token, email: medico.email });
 });
 
 // ====== ENDPOINTS DE TURNOS ======
@@ -183,6 +197,47 @@ app.patch('/api/turnos/:id', authMiddleware, (req, res) => {
 
   guardarTurnos(turnos);
   res.json(turnos[index]);
+});
+
+// ====== CONFIG / DÍAS BLOQUEADOS ======
+
+// Config pública para el front (días bloqueados)
+app.get('/api/config-public', (req, res) => {
+  const config = leerConfig();
+  res.json({
+    diasBloqueados: config.diasBloqueados || []
+  });
+});
+
+// Agregar un día bloqueado (solo médica logueada)
+app.post('/api/dias-bloqueados', authMiddleware, (req, res) => {
+  const { fecha } = req.body; // "YYYY-MM-DD"
+  if (!fecha) return res.status(400).json({ error: 'Falta fecha' });
+
+  const config = leerConfig();
+  const dias = new Set(config.diasBloqueados || []);
+
+  dias.add(fecha);
+
+  config.diasBloqueados = Array.from(dias);
+  guardarConfig(config);
+
+  res.json({ diasBloqueados: config.diasBloqueados });
+});
+
+// Quitar un día bloqueado
+app.delete('/api/dias-bloqueados/:fecha', authMiddleware, (req, res) => {
+  const { fecha } = req.params; // "YYYY-MM-DD"
+
+  const config = leerConfig();
+  const dias = new Set(config.diasBloqueados || []);
+
+  dias.delete(fecha);
+
+  config.diasBloqueados = Array.from(dias);
+  guardarConfig(config);
+
+  res.json({ diasBloqueados: config.diasBloqueados });
 });
 
 app.listen(PORT, () => {
