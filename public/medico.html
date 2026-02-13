@@ -1,86 +1,699 @@
-<script>
-  // ...resto del script...
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Panel de turnos - Médico</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .panel-container {
+      width: 100%;
+      max-width: 960px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+      padding: 24px;
+    }
+    h1 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-size: 1.6rem;
+      color: #111827;
+    }
+    h2 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1.2rem;
+      color: #111827;
+    }
+    p {
+      margin: 4px 0;
+      color: #4b5563;
+    }
 
-  async function actualizarEstadoTurno(id, estado) {
-  if (!token) {
-    console.log('Sin token, no actualizo turno');
-    return;
-  }
+    /* LOGIN */
+    .login-card {
+      max-width: 360px;
+      margin: 0 auto;
+      padding: 20px;
+      border-radius: 12px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+    }
+    .form-group {
+      margin-bottom: 12px;
+    }
+    label {
+      display: block;
+      font-size: 0.9rem;
+      color: #374151;
+      margin-bottom: 4px;
+    }
+    input[type="email"],
+    input[type="password"],
+    input[type="date"] {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    input[type="date"]:focus {
+      border-color: #ec4899;
+      box-shadow: 0 0 0 1px rgba(236, 72, 153, 0.2);
+    }
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #ec4899, #f97316);
+      color: #ffffff;
+      font-weight: 600;
+    }
+    .btn-primary:hover {
+      opacity: 0.95;
+    }
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+      font-weight: 500;
+    }
 
-  console.log('actualizarEstadoTurno llamado con:', { id, estado });
+    .login-message {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      display: none;
+    }
 
-  try {
-    const res = await fetch(`/api/turnos/${id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ estado })
+    /* PANEL DE TURNOS */
+    .hidden {
+      display: none;
+    }
+
+    .header-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .header-panel-left h1 {
+      margin-bottom: 4px;
+    }
+    .header-panel-left p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+    .header-panel-right button {
+      margin-left: 8px;
+    }
+
+    .panel-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .panel-controls label {
+      margin-bottom: 0;
+      font-size: 0.9rem;
+    }
+    .panel-controls input[type="date"] {
+      max-width: 180px;
+    }
+
+    .tabla-container {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    thead {
+      background: #f9fafb;
+    }
+    th, td {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      font-weight: 600;
+      color: #374151;
+      white-space: nowrap;
+    }
+    tr:hover {
+      background: #f9fafb;
+    }
+
+    select.select-estado {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      font-size: 0.85rem;
+      background: #ffffff;
+    }
+
+    .estado-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    .estado-pendiente {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .estado-confirmado {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .estado-cancelado {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    #mensajeSinTurnos {
+      font-size: 0.9rem;
+    }
+    .resumen-dia {
+      margin-top: 4px;
+      font-size: 0.9rem;
+      color: #4b5563;
+    }
+
+    @media (max-width: 640px) {
+      .panel-container {
+        padding: 16px;
+      }
+      h1 {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="panel-container">
+
+    <!-- VISTA LOGIN -->
+    <div id="loginView">
+      <h1>Panel de turnos</h1>
+      <p>Ingresá con tu usuario y contraseña de médico para ver y gestionar los turnos.</p>
+
+      <div class="login-card">
+        <div class="form-group">
+          <label for="emailLogin">Email</label>
+          <input type="email" id="emailLogin" placeholder="tu-correo@ejemplo.com" />
+        </div>
+        <div class="form-group">
+          <label for="passwordLogin">Contraseña</label>
+          <input type="password" id="passwordLogin" placeholder="********" />
+        </div>
+        <button id="btnLogin" class="btn-primary" type="button">Entrar</button>
+        <p id="loginMessage" class="login-message"></p>
+      </div>
+    </div>
+
+    <!-- VISTA PANEL -->
+    <div id="panelView" class="hidden">
+      <div class="header-panel">
+        <div class="header-panel-left">
+          <h1>Turnos del consultorio</h1>
+          <p id="textoUsuario"></p>
+        </div>
+        <div class="header-panel-right">
+          <button id="btnLogout" class="btn-secondary" type="button">Cerrar sesión</button>
+        </div>
+      </div>
+
+      <div class="panel-controls">
+        <label for="filtroFecha">Filtrar por fecha:</label>
+        <input type="date" id="filtroFecha" />
+        <button id="btnHoy" class="btn-secondary" type="button">Ver turnos de hoy</button>
+        <button id="btnTodos" class="btn-secondary" type="button">Ver todos</button>
+      </div>
+
+      <!-- Bloque para bloquear días completos de atención -->
+      <div style="margin-top:12px; padding:10px; border-radius:8px; background:#f9fafb; border:1px solid #e5e7eb;">
+        <h2 style="font-size:1rem; margin:0 0 8px;">Días sin atención</h2>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:8px;">
+          <label for="diaBloqueado" style="font-size:0.9rem;">Elegí una fecha para bloquear:</label>
+          <input type="date" id="diaBloqueado" />
+          <button id="btnBloquearDia" class="btn-secondary" type="button">Bloquear día completo</button>
+        </div>
+        <p id="listaDiasBloqueados" style="font-size:0.85rem; color:#4b5563; margin:0;"></p>
+      </div>
+
+      <p id="mensajeSinTurnos" style="display:none; color:#6b7280; margin-top:4px;">
+        No hay turnos para esta fecha.
+      </p>
+      <p id="resumenDia" class="resumen-dia" style="display:none;"></p>
+
+      <div class="tabla-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>Paciente</th>
+              <th>Email</th>
+              <th>Teléfono</th>
+              <th>Motivo</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="turnosTableBody">
+            <!-- Filas generadas por JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const loginView = document.getElementById('loginView');
+    const panelView = document.getElementById('panelView');
+    const emailLogin = document.getElementById('emailLogin');
+    const passwordLogin = document.getElementById('passwordLogin');
+    const btnLogin = document.getElementById('btnLogin');
+    const loginMessage = document.getElementById('loginMessage');
+
+    const btnLogout = document.getElementById('btnLogout');
+    const textoUsuario = document.getElementById('textoUsuario');
+
+    const filtroFechaInput = document.getElementById('filtroFecha');
+    const btnHoy = document.getElementById('btnHoy');
+    const btnTodos = document.getElementById('btnTodos');
+    const mensajeSinTurnos = document.getElementById('mensajeSinTurnos');
+    const resumenDia = document.getElementById('resumenDia');
+    const turnosTableBody = document.getElementById('turnosTableBody');
+
+    const diaBloqueadoInput = document.getElementById('diaBloqueado');
+    const btnBloquearDia = document.getElementById('btnBloquearDia');
+    const listaDiasBloqueados = document.getElementById('listaDiasBloqueados');
+
+    let token = null;
+    let todosLosTurnos = [];
+    let diasBloqueadosPanel = [];
+
+    function mostrarLogin() {
+      loginView.classList.remove('hidden');
+      panelView.classList.add('hidden');
+      textoUsuario.textContent = '';
+    }
+
+    function mostrarPanel() {
+      loginView.classList.add('hidden');
+      panelView.classList.remove('hidden');
+    }
+
+    async function login() {
+      loginMessage.style.display = 'none';
+      loginMessage.textContent = '';
+
+      const email = emailLogin.value.trim();
+      const password = passwordLogin.value.trim();
+
+      if (!email || !password) {
+        loginMessage.style.display = 'block';
+        loginMessage.style.color = '#b91c1c';
+        loginMessage.textContent = 'Completá email y contraseña.';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          const msg = data.error || data.message || 'Error al iniciar sesión.';
+          loginMessage.style.display = 'block';
+          loginMessage.style.color = '#b91c1c';
+          loginMessage.textContent = msg;
+          return;
+        }
+
+        const data = await res.json();
+        token = data.token;
+        const medicoEmail = data.email || email;
+
+        textoUsuario.textContent = `Sesión iniciada como: ${medicoEmail}`;
+        emailLogin.value = '';
+        passwordLogin.value = '';
+
+        mostrarPanel();
+        await cargarTurnos();
+        await cargarConfigPanel();
+      } catch (error) {
+        console.error(error);
+        loginMessage.style.display = 'block';
+        loginMessage.style.color = '#b91c1c';
+        loginMessage.textContent = 'No se pudo conectar con el servidor.';
+      }
+    }
+
+    async function cargarTurnos() {
+      if (!token) return;
+
+      try {
+        const res = await fetch('/api/turnos', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) {
+            alert('Tu sesión ha expirado. Volvé a iniciar sesión.');
+            token = null;
+            mostrarLogin();
+            return;
+          }
+          throw new Error('Error al obtener turnos');
+        }
+
+        todosLosTurnos = await res.json();
+        renderTurnos();
+      } catch (error) {
+        console.error(error);
+        alert('Error al cargar los turnos.');
+      }
+    }
+
+    function renderTurnos() {
+      const fechaFiltro = filtroFechaInput.value; // "" o "YYYY-MM-DD"
+      let turnosFiltrados = todosLosTurnos.slice();
+
+      if (fechaFiltro) {
+        turnosFiltrados = turnosFiltrados.filter(t => t.fecha === fechaFiltro);
+      }
+
+      // Orden por fecha y hora
+      turnosFiltrados.sort((a, b) => {
+        if (a.fecha === b.fecha) {
+          return (a.hora || '').localeCompare(b.hora || '');
+        }
+        return a.fecha.localeCompare(b.fecha);
+      });
+
+      turnosTableBody.innerHTML = '';
+
+      if (turnosFiltrados.length === 0) {
+        mensajeSinTurnos.style.display = 'block';
+        resumenDia.style.display = 'none';
+        return;
+      }
+
+      mensajeSinTurnos.style.display = 'none';
+
+      // Resumen de estados
+      let pendientes = 0;
+      let confirmados = 0;
+      let cancelados = 0;
+
+      turnosFiltrados.forEach(turno => {
+        if (turno.estado === 'confirmado') confirmados++;
+        else if (turno.estado === 'cancelado') cancelados++;
+        else pendientes++;
+      });
+
+      const textoFecha = fechaFiltro
+        ? `para el día ${fechaFiltro}`
+        : 'en total';
+
+      resumenDia.textContent =
+        `Turnos ${textoFecha}: ${turnosFiltrados.length} (Pendientes: ${pendientes}, Confirmados: ${confirmados}, Cancelados: ${cancelados})`;
+      resumenDia.style.display = 'block';
+
+      turnosFiltrados.forEach(turno => {
+        const tr = document.createElement('tr');
+
+        const claseEstado =
+          turno.estado === 'confirmado' ? 'estado-confirmado' :
+          turno.estado === 'cancelado' ? 'estado-cancelado' :
+          'estado-pendiente';
+
+        tr.innerHTML = `
+          <td>${turno.fecha || ''}</td>
+          <td>${turno.hora || ''}</td>
+          <td>${turno.nombre || ''}</td>
+          <td>${turno.email || ''}</td>
+          <td>${turno.telefono || ''}</td>
+          <td>${turno.motivo || ''}</td>
+          <td>
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <span class="estado-badge ${claseEstado}">
+                ${turno.estado ? turno.estado.charAt(0).toUpperCase() + turno.estado.slice(1) : 'Pendiente'}
+              </span>
+              <select data-id="${turno.id}" class="select-estado">
+                <option value="pendiente"  ${turno.estado === 'pendiente'  ? 'selected' : ''}>Pendiente</option>
+                <option value="confirmado" ${turno.estado === 'confirmado' ? 'selected' : ''}>Confirmado</option>
+                <option value="cancelado"  ${turno.estado === 'cancelado'  ? 'selected' : ''}>Cancelado</option>
+              </select>
+            </div>
+          </td>
+        `;
+
+        turnosTableBody.appendChild(tr);
+      });
+
+      // Listener para cambios de estado
+      document.querySelectorAll('.select-estado').forEach(select => {
+        select.addEventListener('change', async (e) => {
+          const id = e.target.getAttribute('data-id');
+          const nuevoEstado = e.target.value;
+          await actualizarEstadoTurno(id, nuevoEstado);
+        });
+      });
+    }
+
+    async function actualizarEstadoTurno(id, estado) {
+      if (!token) return;
+
+      try {
+        const res = await fetch(`/api/turnos/${id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ estado })
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          console.error('Error al actualizar turno:', res.status, errorData);
+          throw new Error(errorData.error || 'Error al actualizar el estado del turno');
+        }
+
+        const turnoActualizado = await res.json();
+
+        // Actualizar array en memoria
+        const idx = todosLosTurnos.findIndex(t => String(t.id) === String(id));
+        if (idx !== -1) {
+          todosLosTurnos[idx].estado = turnoActualizado.estado;
+        }
+
+        renderTurnos();
+
+        // --- WhatsApp según el nuevo estado ---
+        const telRaw = (turnoActualizado.telefono || '').replace(/[^0-9]/g, '');
+
+        // Solo mandamos WhatsApp si hay teléfono y el nuevo estado es confirmado o cancelado
+        if (telRaw && (estado === 'confirmado' || estado === 'cancelado')) {
+          // Paciente escribe: código de área + número (ej: 2215996743)
+          const telefonoWhatsApp = `549${telRaw}`; // wa.me interpreta 549... como +549...
+
+          let texto = '';
+          if (estado === 'confirmado') {
+            texto =
+              `Hola ${turnoActualizado.nombre || ''}, tu turno con la Dra. Zuchelli ha sido CONFIRMADO.\n\n` +
+              `Fecha: ${turnoActualizado.fecha}\n` +
+              `Hora: ${turnoActualizado.hora}\n\n` +
+              `Si no podés asistir, por favor avisar.`;
+          } else if (estado === 'cancelado') {
+            texto =
+              `Hola ${turnoActualizado.nombre || ''}, te informamos que tu turno con la Dra. Zuchelli ha sido CANCELADO.\n\n` +
+              `Fecha: ${turnoActualizado.fecha}\n` +
+              `Hora: ${turnoActualizado.hora}\n\n` +
+              `Por favor, comunicate para reprogramar.`;
+          }
+
+          if (texto) {
+            const url = `https://wa.me/${telefonoWhatsApp}?text=${encodeURIComponent(texto)}`;
+            window.open(url, '_blank');
+          }
+        }
+        // --- fin WhatsApp ---
+
+      } catch (error) {
+        console.error(error);
+        alert(error.message || 'No se pudo actualizar el estado del turno.');
+      }
+    }
+
+    async function cargarConfigPanel() {
+      try {
+        const res = await fetch('/api/config-public', { cache: 'no-store' });
+        if (!res.ok) throw new Error('Error config');
+        const data = await res.json();
+        diasBloqueadosPanel = Array.isArray(data.diasBloqueados) ? data.diasBloqueados : [];
+        renderDiasBloqueados();
+      } catch (e) {
+        console.error(e);
+        diasBloqueadosPanel = [];
+        renderDiasBloqueados();
+      }
+    }
+
+    function renderDiasBloqueados() {
+      if (!diasBloqueadosPanel.length) {
+        listaDiasBloqueados.textContent = 'No hay días bloqueados actualmente.';
+        return;
+      }
+
+      listaDiasBloqueados.innerHTML = 'Días bloqueados: ' +
+        diasBloqueadosPanel
+          .map(fecha => `
+            <span style="display:inline-flex; align-items:center; gap:4px; margin-right:6px; margin-bottom:4px; padding:2px 6px; border-radius:999px; background:#fee2e2; color:#991b1b;">
+              ${fecha}
+              <button
+                type="button"
+                style="border:none; background:transparent; color:#991b1b; cursor:pointer; font-size:0.8rem;"
+                onclick="desbloquearDia('${fecha}')"
+              >✕</button>
+            </span>
+          `)
+          .join('');
+    }
+
+    async function bloquearDia() {
+      const fecha = diaBloqueadoInput.value;
+      if (!fecha) {
+        alert('Elegí una fecha para bloquear.');
+        return;
+      }
+      if (!token) {
+        alert('Tenés que iniciar sesión.');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/dias-bloqueados', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ fecha })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || 'No se pudo bloquear el día.');
+          return;
+        }
+        diasBloqueadosPanel = data.diasBloqueados || [];
+        renderDiasBloqueados();
+        alert(`Se bloqueó el día ${fecha}. Ese día no se podrán reservar turnos.`);
+      } catch (e) {
+        console.error(e);
+        alert('Error al bloquear el día.');
+      }
+    }
+
+    async function desbloquearDia(fecha) {
+      if (!confirm(`¿Quitar el bloqueo del día ${fecha}?`)) return;
+      if (!token) {
+        alert('Tenés que iniciar sesión.');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/dias-bloqueados/${fecha}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || 'No se pudo desbloquear el día.');
+          return;
+        }
+        diasBloqueadosPanel = data.diasBloqueados || [];
+        renderDiasBloqueados();
+      } catch (e) {
+        console.error(e);
+        alert('Error al desbloquear el día.');
+      }
+    }
+
+    btnBloquearDia.addEventListener('click', bloquearDia);
+
+    // Botón Ver turnos de hoy
+    btnHoy.addEventListener('click', () => {
+      const hoy = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+      filtroFechaInput.value = hoy;
+      renderTurnos();
     });
 
-    console.log('Respuesta PATCH /api/turnos/:id status:', res.status);
+    // Botón Ver todos (quitar filtro)
+    btnTodos.addEventListener('click', () => {
+      filtroFechaInput.value = '';
+      renderTurnos();
+    });
 
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      console.error('Error al actualizar turno:', res.status, errorData);
-      throw new Error(errorData.error || 'Error al actualizar el estado del turno');
-    }
+    // Cambio manual en el filtro de fecha
+    filtroFechaInput.addEventListener('change', () => {
+      renderTurnos();
+    });
 
-    const turnoActualizado = await res.json();
-    console.log('Turno actualizado:', turnoActualizado);
+    btnLogin.addEventListener('click', login);
 
-    // Actualizar array en memoria
-    const idx = todosLosTurnos.findIndex(t => String(t.id) === String(id));
-    if (idx !== -1) {
-      todosLosTurnos[idx].estado = turnoActualizado.estado;
-    }
+    passwordLogin.addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') login();
+    });
 
-    renderTurnos();
-
-    // --- WhatsApp según el nuevo estado ---
-    const telRaw = (turnoActualizado.telefono || '').replace(/[^0-9]/g, '');
-    console.log('telRaw:', telRaw, 'estado recibido:', estado);
-
-    // Solo mandamos WhatsApp si hay teléfono y el nuevo estado es confirmado o cancelado
-    if (telRaw && (estado === 'confirmado' || estado === 'cancelado')) {
-      const telefonoWhatsApp = `549${telRaw}`;
-      console.log('telefonoWhatsApp final:', telefonoWhatsApp);
-
-      let texto = '';
-      if (estado === 'confirmado') {
-        texto =
-          `Hola ${turnoActualizado.nombre || ''}, tu turno con la Dra. Zuchelli ha sido CONFIRMADO.\n\n` +
-          `Fecha: ${turnoActualizado.fecha}\n` +
-          `Hora: ${turnoActualizado.hora}\n\n` +
-          `Si no podés asistir, por favor avisar.`;
-      } else if (estado === 'cancelado') {
-        texto =
-          `Hola ${turnoActualizado.nombre || ''}, te informamos que tu turno con la Dra. Zuchelli ha sido CANCELADO.\n\n` +
-          `Fecha: ${turnoActualizado.fecha}\n` +
-          `Hora: ${turnoActualizado.hora}\n\n` +
-          `Por favor, comunicate para reprogramar.`;
-      }
-
-      if (texto) {
-        const url = `https://wa.me/${telefonoWhatsApp}?text=${encodeURIComponent(texto)}`;
-        console.log('Abriendo WhatsApp con URL:', url);
-        window.open(url, '_blank');
-      } else {
-        console.log('No hay texto para WhatsApp, no se abre ventana.');
-      }
-    } else {
-      console.log('No se envía WhatsApp. Motivo:',
-        telRaw ? `estado no es confirmado/cancelado (${estado})` : 'no hay teléfono válido');
-    }
-    // --- fin WhatsApp ---
-
-  } catch (error) {
-    console.error(error);
-    alert(error.message || 'No se pudo actualizar el estado del turno.');
-  }
-}
-      
-
-  // ...resto del script...
-</script>
+    btnLogout.addEventListener('click', () => {
+      token = null;
+      todosLosTurnos = [];
+      filtroFechaInput.value = '';
+      turnosTableBody.innerHTML = '';
+      mensajeSinTurnos.style.display = 'none';
+      resumenDia.style.display = 'none';
+      mostrarLogin();
+    });
+  </script>
+</body>
+</html>
