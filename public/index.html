@@ -251,7 +251,7 @@
         </button>
 
         <a href="https://wa.me/5492215996743" target="_blank" class="btn btn-secondary">
-          <span class="btn-icon">💬</span>
+          <span class="btn-icon>💬</span>
           <span>WhatsApp</span>
         </a>
       </div>
@@ -283,9 +283,9 @@
         </div>
 
         <div class="form-group">
-        <label for="telefono">Teléfono / WhatsApp</label>
-        <input type="tel" id="telefono" name="telefono" required />
-        <p class="small-hint">Ingresá solo código de área y número, sin 0 y sin 15. Ejemplo: 2215996743.</p>
+          <label for="telefono">Teléfono / WhatsApp</label>
+          <input type="tel" id="telefono" name="telefono" required />
+          <p class="small-hint">Ingresá solo código de área y número, sin 0 y sin 15. Ejemplo: 2215996743.</p>
         </div>
 
         <div class="form-group">
@@ -302,240 +302,232 @@
   </div>
 
   <script>
-  const inputFecha = document.getElementById('fecha');
-  const selectHora = document.getElementById('hora');
-  const turnoForm = document.getElementById('turnoForm');
-  const bookingMessage = document.getElementById('bookingMessage');
-  const btnReservarTurno = document.getElementById('btnReservarTurno');
+    const API_BASE = 'https://app-web-doctor.onrender.com';
 
-  // Horarios de la doctora: 17:00 a 18:30 cada 15 minutos
-  const HORARIOS = ['17:00','17:15','17:30','17:45','18:00','18:15','18:30'];
+    const inputFecha = document.getElementById('fecha');
+    const selectHora = document.getElementById('hora');
+    const turnoForm = document.getElementById('turnoForm');
+    const bookingMessage = document.getElementById('bookingMessage');
+    const btnReservarTurno = document.getElementById('btnReservarTurno');
 
-  let turnosCache = [];
-  let diasBloqueados = [];
+    // Horarios de la doctora: 17:00 a 18:30 cada 15 minutos
+    const HORARIOS = ['17:00','17:15','17:30','17:45','18:00','18:15','18:30'];
 
-  // 1) Cargar turnos existentes (públicos) desde el backend
-  async function cargarTurnosCache() {
-    try {
-      // cache: 'no-store' evita que el navegador te sirva una respuesta vieja
-      const res = await fetch('/api/turnos-public', { cache: 'no-store' });
-      if (!res.ok) throw new Error('Respuesta no OK');
-      const data = await res.json();
-      // En /api/turnos-public solo vienen fecha, hora y estado
-      turnosCache = Array.isArray(data) ? data : [];
-    } catch (e) {
-      console.error('Error al cargar turnos existentes', e);
-      turnosCache = [];
-    }
-  }
+    let turnosCache = [];
+    let diasBloqueados = [];
 
-  // 1.b) Cargar config pública (días bloqueados por la médica)
-  async function cargarConfigPublica() {
-    try {
-      const res = await fetch('/api/config-public', { cache: 'no-store' });
-      if (!res.ok) throw new Error('No se pudo cargar config');
-      const data = await res.json();
-      diasBloqueados = Array.isArray(data.diasBloqueados) ? data.diasBloqueados : [];
-    } catch (e) {
-      console.error('Error al cargar config pública', e);
-      diasBloqueados = [];
-    }
-  }
-
-  // 2) Validar día hábil (martes a viernes)
-  function esDiaHabil(fechaStr) {
-    if (!fechaStr) return false;
-    const [anio, mes, dia] = fechaStr.split('-').map(Number);
-    const fecha = new Date(anio, mes - 1, dia);
-    const diaSemana = fecha.getDay();
-    // 0 dom, 1 lun, 2 mar, 3 mié, 4 jue, 5 vie, 6 sáb
-    return diaSemana >= 2 && diaSemana <= 5;
-  }
-
-  // 3) Obtener horarios ocupados para una fecha
-  function getHorariosOcupadosParaFecha(fechaSeleccionada) {
-    if (!fechaSeleccionada) return [];
-
-    // En turnosCache solo tenemos fecha/hora/estado,
-    // así que con que no estén cancelados ya alcanza
-    return turnosCache
-      .filter(t =>
-        t &&
-        t.fecha === fechaSeleccionada &&
-        t.estado !== 'cancelado'
-      )
-      .map(t => t.hora)
-      .filter(Boolean);
-  }
-
-  // 4) Render de horarios disponibles
-  function renderHorariosDisponibles() {
-    const fechaSeleccionada = inputFecha.value;
-    const hoyStr = new Date().toISOString().split('T')[0];
-
-    selectHora.innerHTML = '';
-
-    if (!fechaSeleccionada) {
-      selectHora.innerHTML = '<option value="">Elegí primero una fecha</option>';
-      selectHora.disabled = true;
-      return;
-    }
-
-    // Validar día hábil
-    if (!esDiaHabil(fechaSeleccionada)) {
-      bookingMessage.style.display = 'block';
-      bookingMessage.style.color = '#b91c1c';
-      bookingMessage.textContent = 'La doctora atiende sólo de martes a viernes. Elegí un día hábil.';
-      inputFecha.value = '';
-      selectHora.innerHTML = '<option value="">Elegí primero una fecha</option>';
-      selectHora.disabled = true;
-      return;
-    }
-
-    // Día bloqueado por la médica
-    if (diasBloqueados.includes(fechaSeleccionada)) {
-      bookingMessage.style.display = 'block';
-      bookingMessage.style.color = '#b91c1c';
-      bookingMessage.textContent =
-        'En la fecha seleccionada no se toman turnos. Por favor, elegí otro día.';
-      selectHora.innerHTML = '<option value="">No hay horarios disponibles</option>';
-      selectHora.disabled = true;
-      return;
-    }
-
-    bookingMessage.style.display = 'none';
-    bookingMessage.textContent = '';
-    selectHora.disabled = false;
-
-    const horariosOcupados = getHorariosOcupadosParaFecha(fechaSeleccionada);
-
-    // opción por defecto
-    const optDefault = document.createElement('option');
-    optDefault.value = '';
-    optDefault.textContent = 'Elegí un horario';
-    selectHora.appendChild(optDefault);
-
-    HORARIOS.forEach(hora => {
-      const opt = document.createElement('option');
-      opt.value = hora;
-
-      let etiqueta = hora;
-      let disabled = false;
-
-      // Si es hoy y el horario ya pasó
-      if (fechaSeleccionada === hoyStr) {
-        const [h, m] = hora.split(':').map(Number);
-        const ahora = new Date();
-        const fechaHora = new Date();
-        fechaHora.setHours(h, m, 0, 0);
-        if (fechaHora <= ahora) {
-          etiqueta = `${hora} (no disponible)`;
-          disabled = true;
-        }
+    // 1) Cargar turnos existentes (públicos) desde el backend
+    async function cargarTurnosCache() {
+      try {
+        const res = await fetch(`${API_BASE}/api/turnos-public`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('Respuesta no OK');
+        const data = await res.json();
+        turnosCache = Array.isArray(data) ? data : [];
+      } catch (e) {
+        console.error('Error al cargar turnos existentes', e);
+        turnosCache = [];
       }
-
-      // Si ya existe turno para esa fecha y hora (no cancelado)
-      if (horariosOcupados.includes(hora)) {
-        etiqueta = `${hora} (ocupado)`;
-        disabled = true;
-      }
-
-      opt.textContent = etiqueta;
-      opt.disabled = disabled;
-      selectHora.appendChild(opt);
-    });
-  }
-
-  // 5) Enviar solicitud de turno
-  async function enviarTurno(e) {
-    e.preventDefault();
-
-    bookingMessage.style.display = 'none';
-    bookingMessage.textContent = '';
-
-    const fecha = inputFecha.value;
-    const hora = selectHora.value;
-    const nombre = document.getElementById('nombre').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const telefono = document.getElementById('telefono').value.trim();
-    const motivo = document.getElementById('motivo').value.trim();
-
-    if (!fecha || !hora || !nombre || !email || !telefono) {
-      bookingMessage.style.display = 'block';
-      bookingMessage.style.color = '#b91c1c';
-      bookingMessage.textContent = 'Completá fecha, horario, nombre, email y teléfono.';
-      return;
     }
 
-    try {
-      const res = await fetch('/api/turnos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fecha, hora, nombre, email, telefono, motivo })
-      });
+    // 1.b) Cargar config pública (días bloqueados por la médica)
+    async function cargarConfigPublica() {
+      try {
+        const res = await fetch(`${API_BASE}/api/config-public`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('No se pudo cargar config');
+        const data = await res.json();
+        diasBloqueados = Array.isArray(data.diasBloqueados) ? data.diasBloqueados : [];
+      } catch (e) {
+        console.error('Error al cargar config pública', e);
+        diasBloqueados = [];
+      }
+    }
 
-      const data = await res.json().catch(() => ({}));
+    // 2) Validar día hábil (martes a viernes)
+    function esDiaHabil(fechaStr) {
+      if (!fechaStr) return false;
+      const [anio, mes, dia] = fechaStr.split('-').map(Number);
+      const fecha = new Date(anio, mes - 1, dia);
+      const diaSemana = fecha.getDay();
+      // 0 dom, 1 lun, 2 mar, 3 mié, 4 jue, 5 vie, 6 sáb
+      return diaSemana >= 2 && diaSemana <= 5;
+    }
 
-      if (!res.ok) {
-        const msg = data.error || data.message || 'No se pudo guardar el turno. Probá con otro horario.';
-        bookingMessage.style.display = 'block';
-        bookingMessage.style.color = '#b91c1c';
-        bookingMessage.textContent = msg;
+    // 3) Obtener horarios ocupados para una fecha
+    function getHorariosOcupadosParaFecha(fechaSeleccionada) {
+      if (!fechaSeleccionada) return [];
+      return turnosCache
+        .filter(t =>
+          t &&
+          t.fecha === fechaSeleccionada &&
+          t.estado !== 'cancelado'
+        )
+        .map(t => t.hora)
+        .filter(Boolean);
+    }
+
+    // 4) Render de horarios disponibles
+    function renderHorariosDisponibles() {
+      const fechaSeleccionada = inputFecha.value;
+      const hoyStr = new Date().toISOString().split('T')[0];
+
+      selectHora.innerHTML = '';
+
+      if (!fechaSeleccionada) {
+        selectHora.innerHTML = '<option value="">Elegí primero una fecha</option>';
+        selectHora.disabled = true;
         return;
       }
 
+      if (!esDiaHabil(fechaSeleccionada)) {
+        bookingMessage.style.display = 'block';
+        bookingMessage.style.color = '#b91c1c';
+        bookingMessage.textContent = 'La doctora atiende sólo de martes a viernes. Elegí un día hábil.';
+        inputFecha.value = '';
+        selectHora.innerHTML = '<option value="">Elegí primero una fecha</option>';
+        selectHora.disabled = true;
+        return;
+      }
+
+      if (diasBloqueados.includes(fechaSeleccionada)) {
+        bookingMessage.style.display = 'block';
+        bookingMessage.style.color = '#b91c1c';
+        bookingMessage.textContent =
+          'En la fecha seleccionada no se toman turnos. Por favor, elegí otro día.';
+        selectHora.innerHTML = '<option value="">No hay horarios disponibles</option>';
+        selectHora.disabled = true;
+        return;
+      }
+
+      bookingMessage.style.display = 'none';
+      bookingMessage.textContent = '';
+      selectHora.disabled = false;
+
+      const horariosOcupados = getHorariosOcupadosParaFecha(fechaSeleccionada);
+
+      const optDefault = document.createElement('option');
+      optDefault.value = '';
+      optDefault.textContent = 'Elegí un horario';
+      selectHora.appendChild(optDefault);
+
+      HORARIOS.forEach(hora => {
+        const opt = document.createElement('option');
+        opt.value = hora;
+
+        let etiqueta = hora;
+        let disabled = false;
+
+        if (fechaSeleccionada === hoyStr) {
+          const [h, m] = hora.split(':').map(Number);
+          const ahora = new Date();
+          const fechaHora = new Date();
+          fechaHora.setHours(h, m, 0, 0);
+          if (fechaHora <= ahora) {
+            etiqueta = `${hora} (no disponible)`;
+            disabled = true;
+          }
+        }
+
+        if (horariosOcupados.includes(hora)) {
+          etiqueta = `${hora} (ocupado)`;
+          disabled = true;
+        }
+
+        opt.textContent = etiqueta;
+        opt.disabled = disabled;
+        selectHora.appendChild(opt);
+      });
+    }
+
+    // 5) Enviar solicitud de turno
+    async function enviarTurno(e) {
+      e.preventDefault();
+
+      bookingMessage.style.display = 'none';
+      bookingMessage.textContent = '';
+
+      const fecha = inputFecha.value;
+      const hora = selectHora.value;
+      const nombre = document.getElementById('nombre').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const telefono = document.getElementById('telefono').value.trim();
+      const motivo = document.getElementById('motivo').value.trim();
+
+      if (!fecha || !hora || !nombre || !email || !telefono) {
+        bookingMessage.style.display = 'block';
+        bookingMessage.style.color = '#b91c1c';
+        bookingMessage.textContent = 'Completá fecha, horario, nombre, email y teléfono.';
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/api/turnos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fecha, hora, nombre, email, telefono, motivo })
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          const msg = data.error || data.message || 'No se pudo guardar el turno. Probá con otro horario.';
+          bookingMessage.style.display = 'block';
+          bookingMessage.style.color = '#b91c1c';
+          bookingMessage.textContent = msg;
+          return;
+        }
+
+        await cargarTurnosCache();
+        renderHorariosDisponibles();
+
+        bookingMessage.style.display = 'block';
+        bookingMessage.style.color = '#15803d';
+        bookingMessage.textContent = 'Tu solicitud fue registrada. Turno reservado con éxito.';
+
+        document.getElementById('motivo').value = '';
+
+        const numeroWhatsApp = '5492215996743';
+        const texto = `Nueva solicitud de turno desde la web:%0A%0A` +
+          `Paciente: ${encodeURIComponent(nombre)}%0A` +
+          `Fecha: ${encodeURIComponent(fecha)}%0A` +
+          `Hora: ${encodeURIComponent(hora)}%0A` +
+          `Email: ${encodeURIComponent(email)}%0A` +
+          `Teléfono: ${encodeURIComponent(telefono)}%0A` +
+          (motivo ? `Motivo: ${encodeURIComponent(motivo)}%0A` : '');
+
+        const urlWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${texto}`;
+        window.open(urlWhatsApp, '_blank');
+      } catch (error) {
+        console.error(error);
+        bookingMessage.style.display = 'block';
+        bookingMessage.style.color = '#b91c1c';
+        bookingMessage.textContent = 'Ocurrió un error al enviar la solicitud.';
+      }
+    }
+
+    // 6) Inicialización
+    document.addEventListener('DOMContentLoaded', async () => {
+      const hoy = new Date().toISOString().split('T')[0];
+      inputFecha.min = hoy;
+
+      await Promise.all([
+        cargarTurnosCache(),
+        cargarConfigPublica()
+      ]);
+    });
+
+    inputFecha.addEventListener('change', async () => {
       await cargarTurnosCache();
       renderHorariosDisponibles();
+    });
 
-      bookingMessage.style.display = 'block';
-      bookingMessage.style.color = '#15803d';
-      bookingMessage.textContent = 'Tu solicitud fue registrada. Turno reservado con éxito.';
+    turnoForm.addEventListener('submit', enviarTurno);
 
-      document.getElementById('motivo').value = '';
-
-      const numeroWhatsApp = '5492215996743';
-      const texto = `Nueva solicitud de turno desde la web:%0A%0A` +
-        `Paciente: ${encodeURIComponent(nombre)}%0A` +
-        `Fecha: ${encodeURIComponent(fecha)}%0A` +
-        `Hora: ${encodeURIComponent(hora)}%0A` +
-        `Email: ${encodeURIComponent(email)}%0A` +
-        `Teléfono: ${encodeURIComponent(telefono)}%0A` +
-        (motivo ? `Motivo: ${encodeURIComponent(motivo)}%0A` : '');
-
-      const urlWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${texto}`;
-      window.open(urlWhatsApp, '_blank');
-    } catch (error) {
-      console.error(error);
-      bookingMessage.style.display = 'block';
-      bookingMessage.style.color = '#b91c1c';
-      bookingMessage.textContent = 'Ocurrió un error al enviar la solicitud.';
-    }
-  }
-
-  // 6) Inicialización
-  document.addEventListener('DOMContentLoaded', async () => {
-    const hoy = new Date().toISOString().split('T')[0];
-    inputFecha.min = hoy;
-
-    await Promise.all([
-      cargarTurnosCache(),
-      cargarConfigPublica()
-    ]);
-  });
-
-  inputFecha.addEventListener('change', async () => {
-    await cargarTurnosCache();
-    renderHorariosDisponibles();
-  });
-
-  turnoForm.addEventListener('submit', enviarTurno);
-
-  btnReservarTurno.addEventListener('click', () => {
-    if (turnoForm.classList.contains('hidden')) {
-      turnoForm.classList.remove('hidden');
-    }
-    turnoForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
-</script>
+    btnReservarTurno.addEventListener('click', () => {
+      if (turnoForm.classList.contains('hidden')) {
+        turnoForm.classList.remove('hidden');
+      }
+      turnoForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  </script>
 </body>
 </html>

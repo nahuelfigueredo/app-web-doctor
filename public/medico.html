@@ -298,6 +298,8 @@
   </div>
 
   <script>
+    const API_BASE = 'https://app-web-doctor.onrender.com';
+
     const loginView = document.getElementById('loginView');
     const panelView = document.getElementById('panelView');
     const emailLogin = document.getElementById('emailLogin');
@@ -350,7 +352,7 @@
       }
 
       try {
-        const res = await fetch('/api/login', {
+        const res = await fetch(`${API_BASE}/api/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
@@ -389,7 +391,7 @@
       if (!token) return;
 
       try {
-        const res = await fetch('/api/turnos', {
+        const res = await fetch(`${API_BASE}/api/turnos`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -505,7 +507,7 @@
       if (!token) return;
 
       try {
-        const res = await fetch(`/api/turnos/${id}`, {
+        const res = await fetch(`${API_BASE}/api/turnos/${id}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -568,7 +570,7 @@
 
     async function cargarConfigPanel() {
       try {
-        const res = await fetch('/api/config-public', { cache: 'no-store' });
+        const res = await fetch(`${API_BASE}/api/config-public`, { cache: 'no-store' });
         if (!res.ok) throw new Error('Error config');
         const data = await res.json();
         diasBloqueadosPanel = Array.isArray(data.diasBloqueados) ? data.diasBloqueados : [];
@@ -613,7 +615,7 @@
       }
 
       try {
-        const res = await fetch('/api/dias-bloqueados', {
+        const res = await fetch(`${API_BASE}/api/dias-bloqueados`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -643,7 +645,7 @@
       }
 
       try {
-        const res = await fetch(`/api/dias-bloqueados/${fecha}`, {
+        const res = await fetch(`${API_BASE}/api/dias-bloqueados/${fecha}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`
