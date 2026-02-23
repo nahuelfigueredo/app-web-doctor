@@ -5,34 +5,49 @@
   <title>Turnos online - Consultorio</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    :root {
+      --primary: #ec4899;
+      --primary-soft: #fce7f3;
+      --accent: #38bdf8;
+      --bg: #f3f4f6;
+      --text-main: #111827;
+      --text-sub: #4b5563;
+      --border: #e5e7eb;
+    }
+
     * {
       box-sizing: border-box;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
+
     body {
       margin: 0;
       min-height: 100vh;
-      background: #f3f4f6;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 16px;
+      background: radial-gradient(circle at top, #fef9c3 0, #fce7f3 45%, #e0f2fe 100%);
     }
+
     .phone-frame {
       width: 100%;
-      max-width: 420px;
-      border-radius: 32px;
-      background: #f9fafb;
-      box-shadow: 0 20px 60px rgba(15, 23, 42, 0.35);
-      padding: 24px 18px 24px;
+      max-width: 430px;
+      border-radius: 30px;
+      background: rgba(249, 250, 251, 0.9);
+      box-shadow:
+        0 20px 60px rgba(15, 23, 42, 0.4),
+        0 0 0 1px rgba(248, 250, 252, 0.7);
+      padding: 22px 18px 22px;
       border: 8px solid #f9a8d4;
       position: relative;
       overflow: hidden;
     }
+
     .screen {
       background: #ffffff;
-      border-radius: 26px;
-      padding: 26px 20px 20px;
+      border-radius: 24px;
+      padding: 22px 18px 20px;
       min-height: 540px;
       display: flex;
       flex-direction: column;
@@ -42,65 +57,81 @@
       box-shadow: 0 12px 30px rgba(244, 114, 182, 0.25);
     }
 
+    .screen::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(236, 72, 153, 0.09), transparent 58%);
+      pointer-events: none;
+    }
+
     .avatar-wrapper {
       display: flex;
       justify-content: center;
-      margin-bottom: 18px;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
     }
+
     .avatar {
-      width: 140px;
-      height: 140px;
-      border-radius: 15%;
+      width: 130px;
+      height: 130px;
+      border-radius: 18px;
       overflow: hidden;
-      border: 6px solid #fce7f3;
-      box-shadow: 0 6px 14px rgba(244, 114, 182, 0.45);
+      border: 5px solid #fef9c3;
+      box-shadow: 0 8px 18px rgba(248, 113, 113, 0.45);
       background: radial-gradient(circle at 60% 50%, #f97316, #ec4899);
     }
     .avatar img {
       width: 100%;
       height: 100%;
-      border-radius: 15%;
+      border-radius: 18px;
       object-fit: cover;
       object-position: center 1%;
     }
 
     .doctor-info {
       text-align: center;
-      margin-top: 4px;
+      margin-top: 0;
       margin-bottom: 4px;
+      position: relative;
+      z-index: 1;
     }
     .doctor-info h1 {
-      font-size: 1.3rem;
-      color: #111827;
+      font-size: 1.25rem;
+      color: var(--text-main);
       margin: 0 0 4px;
       font-weight: 700;
+      letter-spacing: 0.02em;
     }
     .doctor-info a {
       display: inline-block;
       margin-bottom: 4px;
-      font-size: 0.86rem;
-      color: #2563eb;
+      font-size: 0.82rem;
+      color: var(--accent);
       text-decoration: none;
       font-weight: 500;
     }
     .doctor-info a:hover { text-decoration: underline; }
     .doctor-info p {
       margin: 0;
-      color: #4b5563;
-      font-size: 0.86rem;
-      line-height: 1.4;
+      color: var(--text-sub);
+      font-size: 0.8rem;
+      line-height: 1.5;
     }
 
     .icons-row {
       display: flex;
       justify-content: center;
-      gap: 18px;
+      gap: 16px;
       margin-top: 10px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
+      position: relative;
+      z-index: 1;
     }
     .icon-circle {
-      width: 38px;
-      height: 38px;
+      width: 34px;
+      height: 34px;
       border-radius: 999px;
       display: flex;
       align-items: center;
@@ -109,23 +140,26 @@
       box-shadow: 0 4px 10px rgba(148, 163, 184, 0.35);
       text-decoration: none;
     }
-    .icon-circle img { width: 22px; height: 22px; display: block; }
+    .icon-circle img { width: 20px; height: 20px; display: block; }
 
     .main-actions {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      margin-top: 8px;
+      gap: 8px;
+      margin-top: 4px;
+      position: relative;
+      z-index: 1;
     }
+
     .btn {
       border-radius: 999px;
-      padding: 12px 16px;
+      padding: 11px 14px;
       border: none;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       cursor: pointer;
       text-decoration: none;
     }
@@ -142,8 +176,8 @@
       box-shadow: 0 6px 16px rgba(148, 163, 184, 0.3);
     }
     .btn-icon {
-      width: 24px;
-      height: 24px;
+      width: 22px;
+      height: 22px;
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.7);
       display: flex;
@@ -154,19 +188,21 @@
 
     form {
       background: #f9fafb;
-      border-radius: 16px;
+      border-radius: 14px;
       padding: 12px 12px 14px;
       box-shadow: inset 0 0 0 1px #e5e7eb;
       display: flex;
       flex-direction: column;
       gap: 8px;
+      position: relative;
+      z-index: 1;
     }
     .form-group {
       display: flex;
       flex-direction: column;
       gap: 3px;
     }
-    label { font-size: 0.8rem; color: #374151; }
+    label { font-size: 0.78rem; color: #374151; }
     input[type="text"],
     input[type="email"],
     input[type="tel"],
@@ -175,23 +211,26 @@
     textarea {
       width: 100%;
       padding: 8px 9px;
-      border-radius: 10px;
+      border-radius: 9px;
       border: 1px solid #d1d5db;
       font-size: 0.82rem;
       outline: none;
       background-color: #ffffff;
+      transition: border-color 0.18s, box-shadow 0.18s, background-color 0.18s;
     }
     input:focus,
     select:focus,
     textarea:focus {
-      border-color: #ec4899;
-      box-shadow: 0 0 0 1px rgba(236, 72, 153, 0.2);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px rgba(236, 72, 153, 0.25);
+      background-color: #ffffff;
     }
     textarea {
       resize: vertical;
       min-height: 54px;
       max-height: 120px;
     }
+
     .small-hint { font-size: 0.7rem; color: #6b7280; }
 
     .booking-message {
@@ -205,6 +244,8 @@
       font-size: 0.7rem;
       color: #9ca3af;
       text-align: center;
+      position: relative;
+      z-index: 1;
     }
 
     .hidden { display: none; }
@@ -223,10 +264,8 @@
         <h1>Dra. Zuchelli Vanina Andrea</h1>
         <a href="#" target="_blank">Médica Pediátrica</a>
         <p>
-          Especialista jerarquizada en clínica pediátrica.
-          Atención recién nacidos, niños y adolescentes.
-          Atención con turnos programados.
-          Particular y obras sociales.
+          Especialista jerarquizada en clínica pediátrica.<br />
+          Atención de recién nacidos, niños y adolescentes con turnos programados.
         </p>
       </div>
 
@@ -243,7 +282,6 @@
       </div>
 
       <div class="main-actions">
-        <!-- SOLO botón de Reservar turno arriba -->
         <button id="btnReservarTurno" class="btn btn-primary" type="button">
           <span class="btn-icon">📅</span>
           <span>Reservar turno</span>
@@ -291,11 +329,10 @@
         <p id="bookingMessage" class="booking-message"></p>
       </form>
 
-      <!-- Botón de WhatsApp reubicado abajo, separado -->
       <a href="https://wa.me/5492215996743"
          target="_blank"
          class="btn btn-secondary"
-         style="margin-top: 12px;">
+         style="margin-top: 10px;">
         <span class="btn-icon">💬</span>
         <span>WhatsApp del consultorio</span>
       </a>
@@ -347,7 +384,7 @@
       const [anio, mes, dia] = fechaStr.split('-').map(Number);
       const fecha = new Date(anio, mes - 1, dia);
       const diaSemana = fecha.getDay();
-      return diaSemana >= 2 && diaSemana <= 5; // mar a vie
+      return diaSemana >= 2 && diaSemana <= 5;
     }
 
     function getHorariosOcupadosParaFecha(fechaSeleccionada) {

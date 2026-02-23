@@ -5,106 +5,153 @@
   <title>Panel de turnos - Médico</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    :root {
+      --primary: #ec4899;
+      --primary-soft: #fce7f3;
+      --accent: #38bdf8;
+      --bg: #f3f4f6;
+      --text-main: #111827;
+      --text-sub: #4b5563;
+      --border: #e5e7eb;
+    }
+
     * {
       box-sizing: border-box;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
+
     body {
       margin: 0;
       min-height: 100vh;
-      background: #f3f4f6;
+      background: radial-gradient(circle at top, #e0f2fe 0, #f9fafb 45%, #fce7f3 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 16px;
+      padding: 18px;
     }
+
     .panel-container {
       width: 100%;
-      max-width: 960px;
+      max-width: 980px;
       background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
-      padding: 24px;
+      border-radius: 20px;
+      box-shadow:
+        0 20px 55px rgba(15, 23, 42, 0.22),
+        0 0 0 1px rgba(248, 250, 252, 0.8);
+      padding: 22px 20px 20px;
+      position: relative;
+      overflow: hidden;
     }
+
+    .panel-container::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(236, 72, 153, 0.08), transparent 60%);
+      pointer-events: none;
+    }
+
     h1 {
       margin-top: 0;
-      margin-bottom: 8px;
-      font-size: 1.6rem;
-      color: #111827;
+      margin-bottom: 4px;
+      font-size: 1.5rem;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
     }
     h2 {
       margin-top: 0;
-      margin-bottom: 12px;
-      font-size: 1.2rem;
-      color: #111827;
+      margin-bottom: 8px;
+      font-size: 1.05rem;
+      color: var(--text-main);
     }
     p {
       margin: 4px 0;
-      color: #4b5563;
+      color: var(--text-sub);
     }
 
-    /* LOGIN */
     .login-card {
-      max-width: 360px;
-      margin: 0 auto;
-      padding: 20px;
-      border-radius: 12px;
+      max-width: 380px;
+      margin: 4px auto 0;
+      padding: 20px 18px 18px;
+      border-radius: 14px;
       background: #f9fafb;
       border: 1px solid #e5e7eb;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 8px 22px rgba(148, 163, 184, 0.25);
     }
+
     .form-group {
       margin-bottom: 12px;
     }
     label {
       display: block;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       color: #374151;
       margin-bottom: 4px;
+      font-weight: 500;
     }
     input[type="email"],
     input[type="password"],
     input[type="date"] {
       width: 100%;
-      padding: 8px 10px;
-      border-radius: 8px;
+      padding: 9px 10px;
+      border-radius: 9px;
       border: 1px solid #d1d5db;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       outline: none;
+      background-color: #f9fafb;
+      transition: border-color 0.18s, box-shadow 0.18s, background-color 0.18s;
     }
     input[type="email"]:focus,
     input[type="password"]:focus,
     input[type="date"]:focus {
-      border-color: #ec4899;
-      box-shadow: 0 0 0 1px rgba(236, 72, 153, 0.2);
+      border-color: var(--primary);
+      background-color: #ffffff;
+      box-shadow: 0 0 0 1px rgba(236, 72, 153, 0.22);
     }
+
     button {
       border: none;
       border-radius: 999px;
-      padding: 8px 16px;
-      font-size: 0.95rem;
+      padding: 8px 14px;
+      font-size: 0.9rem;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
     .btn-primary {
       background: linear-gradient(135deg, #ec4899, #f97316);
       color: #ffffff;
       font-weight: 600;
-    }
-    .btn-primary:hover {
-      opacity: 0.95;
+      box-shadow: 0 8px 20px rgba(236, 72, 153, 0.45);
     }
     .btn-secondary {
-      background: #e5e7eb;
+      background: #e0f2fe;
       color: #111827;
       font-weight: 500;
+      box-shadow: 0 6px 16px rgba(148, 163, 184, 0.3);
+    }
+
+    .btn-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
     }
 
     .login-message {
       margin-top: 8px;
-      font-size: 0.9rem;
+      font-size: 0.82rem;
       display: none;
     }
 
-    /* PANEL DE TURNOS */
     .hidden {
       display: none;
     }
@@ -112,32 +159,33 @@
     .header-panel {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
       gap: 12px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
     }
     .header-panel-left h1 {
       margin-bottom: 4px;
     }
     .header-panel-left p {
       margin: 0;
-      font-size: 0.9rem;
-    }
-    .header-panel-right button {
-      margin-left: 8px;
+      font-size: 0.85rem;
     }
 
     .panel-controls {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 8px;
+      gap: 10px;
+      margin-bottom: 10px;
       flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
     }
     .panel-controls label {
       margin-bottom: 0;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
     }
     .panel-controls input[type="date"] {
       max-width: 180px;
@@ -146,15 +194,23 @@
     .tabla-container {
       width: 100%;
       overflow-x: auto;
-      margin-top: 8px;
+      margin-top: 4px;
+      position: relative;
+      z-index: 1;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
     }
     thead {
-      background: #f9fafb;
+      background: #f3f4f6;
     }
     th, td {
       border-bottom: 1px solid #e5e7eb;
@@ -175,7 +231,7 @@
       padding: 4px 8px;
       border-radius: 999px;
       border: 1px solid #d1d5db;
-      font-size: 0.85rem;
+      font-size: 0.78rem;
       background: #ffffff;
     }
 
@@ -184,7 +240,7 @@
       align-items: center;
       padding: 2px 8px;
       border-radius: 999px;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 500;
     }
     .estado-pendiente {
@@ -201,27 +257,26 @@
     }
 
     #mensajeSinTurnos {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
     }
     .resumen-dia {
       margin-top: 4px;
-      font-size: 0.9rem;
-      color: #4b5563;
+      font-size: 0.85rem;
+      color: var(--text-sub);
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 768px) {
       .panel-container {
-        padding: 16px;
+        padding: 18px 14px;
       }
       h1 {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
       }
     }
   </style>
 </head>
 <body>
   <div class="panel-container">
-
     <!-- VISTA LOGIN -->
     <div id="loginView">
       <h1>Panel de turnos</h1>
@@ -236,7 +291,10 @@
           <label for="passwordLogin">Contraseña</label>
           <input type="password" id="passwordLogin" placeholder="********" />
         </div>
-        <button id="btnLogin" class="btn-primary" type="button">Entrar</button>
+        <button id="btnLogin" class="btn-primary" type="button">
+          <span class="btn-icon">→</span>
+          <span>Entrar al panel</span>
+        </button>
         <p id="loginMessage" class="login-message"></p>
       </div>
     </div>
@@ -249,29 +307,40 @@
           <p id="textoUsuario"></p>
         </div>
         <div class="header-panel-right">
-          <button id="btnLogout" class="btn-secondary" type="button">Cerrar sesión</button>
+          <button id="btnLogout" class="btn-secondary" type="button">
+            <span class="btn-icon">⎋</span>
+            <span>Cerrar sesión</span>
+          </button>
         </div>
       </div>
 
       <div class="panel-controls">
         <label for="filtroFecha">Filtrar por fecha:</label>
         <input type="date" id="filtroFecha" />
-        <button id="btnHoy" class="btn-secondary" type="button">Ver turnos de hoy</button>
-        <button id="btnTodos" class="btn-secondary" type="button">Ver todos</button>
+        <button id="btnHoy" class="btn-secondary" type="button">
+          <span class="btn-icon">📅</span>
+          <span>Hoy</span>
+        </button>
+        <button id="btnTodos" class="btn-secondary" type="button">
+          <span class="btn-icon">∞</span>
+          <span>Todos</span>
+        </button>
       </div>
 
-      <!-- Bloque para bloquear días completos de atención -->
-      <div style="margin-top:12px; padding:10px; border-radius:8px; background:#f9fafb; border:1px solid #e5e7eb;">
-        <h2 style="font-size:1rem; margin:0 0 8px;">Días sin atención</h2>
-        <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:8px;">
-          <label for="diaBloqueado" style="font-size:0.9rem;">Elegí una fecha para bloquear:</label>
+      <div style="margin-top:10px; padding:10px; border-radius:10px; background:#f9fafb; border:1px solid #e5e7eb; position:relative; z-index:1;">
+        <h2>Días sin atención</h2>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:6px;">
+          <label for="diaBloqueado" style="font-size:0.8rem;">Elegí una fecha para bloquear:</label>
           <input type="date" id="diaBloqueado" />
-          <button id="btnBloquearDia" class="btn-secondary" type="button">Bloquear día completo</button>
+          <button id="btnBloquearDia" class="btn-secondary" type="button">
+            <span class="btn-icon">⛔</span>
+            <span>Bloquear día completo</span>
+          </button>
         </div>
-        <p id="listaDiasBloqueados" style="font-size:0.85rem; color:#4b5563; margin:0;"></p>
+        <p id="listaDiasBloqueados" style="font-size:0.78rem; color:#4b5563; margin:0;"></p>
       </div>
 
-      <p id="mensajeSinTurnos" style="display:none; color:#6b7280; margin-top:4px;">
+      <p id="mensajeSinTurnos" style="display:none; color:#6b7280; margin-top:6px;">
         No hay turnos para esta fecha.
       </p>
       <p id="resumenDia" class="resumen-dia" style="display:none;"></p>
@@ -290,7 +359,6 @@
             </tr>
           </thead>
           <tbody id="turnosTableBody">
-            <!-- Filas generadas por JS -->
           </tbody>
         </table>
       </div>
@@ -324,7 +392,7 @@
     let token = null;
     let todosLosTurnos = [];
     let diasBloqueadosPanel = [];
-    let refrescoInterval = null; // para el refresco automático
+    let refrescoInterval = null;
 
     function mostrarLogin() {
       loginView.classList.remove('hidden');
@@ -378,7 +446,7 @@
         mostrarPanel();
         await cargarTurnos();
         await cargarConfigPanel();
-        iniciarRefrescoAutomatico(); // empieza el auto-refresco
+        iniciarRefrescoAutomatico();
       } catch (error) {
         console.error(error);
         loginMessage.style.display = 'block';
@@ -417,14 +485,13 @@
     }
 
     function renderTurnos() {
-      const fechaFiltro = filtroFechaInput.value; // "" o "YYYY-MM-DD"
+      const fechaFiltro = filtroFechaInput.value;
       let turnosFiltrados = todosLosTurnos.slice();
 
       if (fechaFiltro) {
         turnosFiltrados = turnosFiltrados.filter(t => t.fecha === fechaFiltro);
       }
 
-      // Orden por fecha y hora
       turnosFiltrados.sort((a, b) => {
         if (a.fecha === b.fecha) {
           return (a.hora || '').localeCompare(b.hora || '');
@@ -442,7 +509,6 @@
 
       mensajeSinTurnos.style.display = 'none';
 
-      // Resumen de estados
       let pendientes = 0;
       let confirmados = 0;
       let cancelados = 0;
@@ -493,7 +559,6 @@
         turnosTableBody.appendChild(tr);
       });
 
-      // Listener para cambios de estado
       document.querySelectorAll('.select-estado').forEach(select => {
         select.addEventListener('change', async (e) => {
           const id = e.target.getAttribute('data-id');
@@ -524,7 +589,6 @@
 
         const turnoActualizado = await res.json();
 
-        // Actualizar array en memoria
         const idx = todosLosTurnos.findIndex(t => String(t.id) === String(id));
         if (idx !== -1) {
           todosLosTurnos[idx].estado = turnoActualizado.estado;
@@ -532,13 +596,10 @@
 
         renderTurnos();
 
-        // --- WhatsApp según el nuevo estado ---
         const telRaw = (turnoActualizado.telefono || '').replace(/[^0-9]/g, '');
 
-        // Solo mandamos WhatsApp si hay teléfono y el nuevo estado es confirmado o cancelado
         if (telRaw && (estado === 'confirmado' || estado === 'cancelado')) {
-          // Paciente escribe: código de área + número (ej: 2215996743)
-          const telefonoWhatsApp = `549${telRaw}`; // wa.me interpreta 549... como +549...
+          const telefonoWhatsApp = `549${telRaw}`;
 
           let texto = '';
           if (estado === 'confirmado') {
@@ -560,8 +621,6 @@
             window.open(url, '_blank');
           }
         }
-        // --- fin WhatsApp ---
-
       } catch (error) {
         console.error(error);
         alert(error.message || 'No se pudo actualizar el estado del turno.');
@@ -591,7 +650,7 @@
       listaDiasBloqueados.innerHTML = 'Días bloqueados: ' +
         diasBloqueadosPanel
           .map(fecha => `
-            <span style="display:inline-flex; align-items:center; gap:4px; margin-right:6px; margin-bottom:4px; padding:2px 6px; border-radius:999px; background:#fee2e2; color:#991b1b;">
+            <span style="display:inline-flex; align-items:center; gap:4px; margin-right:6px; margin-bottom:4px; padding:2px 6px; border-radius:999px; background:#fee2e2; color:#991b1b; font-size:0.78rem;">
               ${fecha}
               <button
                 type="button"
@@ -666,7 +725,6 @@
 
     function iniciarRefrescoAutomatico() {
       if (refrescoInterval) return;
-      // refresco cada 30 segundos (30000 ms). Podés subir/bajar este valor.
       refrescoInterval = setInterval(() => {
         if (token) {
           cargarTurnos();
@@ -683,20 +741,17 @@
 
     btnBloquearDia.addEventListener('click', bloquearDia);
 
-    // Botón Ver turnos de hoy
     btnHoy.addEventListener('click', () => {
-      const hoy = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+      const hoy = new Date().toISOString().split('T')[0];
       filtroFechaInput.value = hoy;
       renderTurnos();
     });
 
-    // Botón Ver todos (quitar filtro)
     btnTodos.addEventListener('click', () => {
       filtroFechaInput.value = '';
       renderTurnos();
     });
 
-    // Cambio manual en el filtro de fecha
     filtroFechaInput.addEventListener('change', () => {
       renderTurnos();
     });
