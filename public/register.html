@@ -5,113 +5,233 @@
   <title>Registrar Médico</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
+    :root {
+      --primary: #ec4899;
+      --primary-soft: #fce7f3;
+      --accent: #38bdf8;
+      --bg: #f3f4f6;
+      --text-main: #111827;
+      --text-sub: #4b5563;
+      --border: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f3f4f6;
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
+      padding: 16px;
+      background: radial-gradient(circle at top, #fef9c3 0, #fce7f3 45%, #e0f2fe 100%);
     }
+
     .box {
-      max-width: 400px;
+      max-width: 420px;
       width: 100%;
-      background: #fff;
-      padding: 20px 18px;
-      border-radius: 12px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      background: #ffffff;
+      padding: 24px 22px 20px;
+      border-radius: 18px;
+      box-shadow:
+        0 18px 40px rgba(15, 23, 42, 0.16),
+        0 0 0 1px rgba(248, 250, 252, 0.7);
+      position: relative;
+      overflow: hidden;
     }
+
+    .box::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(236, 72, 153, 0.07), transparent 55%);
+      pointer-events: none;
+    }
+
     h1 {
-      margin-top: 0;
-      font-size: 1.3rem;
-      margin-bottom: 4px;
+      margin: 0 0 4px;
+      font-size: 1.35rem;
+      color: var(--text-main);
+      letter-spacing: 0.02em;
     }
-    p {
+
+    .subtitle {
       font-size: 0.85rem;
-      color: #4b5563;
-      margin-top: 0;
-      margin-bottom: 16px;
+      color: var(--text-sub);
+      margin: 0 0 10px;
     }
-    .row {
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: #be185d;
+      font-size: 0.7rem;
       margin-bottom: 10px;
     }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #fb7185;
+    }
+
+    .row {
+      margin-bottom: 12px;
+    }
+
     label {
       display: block;
       font-size: 0.8rem;
-      color: #4b5563;
-      margin-bottom: 2px;
+      color: var(--text-sub);
+      margin-bottom: 4px;
+      font-weight: 500;
     }
+
     input {
       width: 100%;
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 1px solid #d1d5db;
+      padding: 9px 11px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
       font-size: 0.9rem;
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: border-color 0.18s, box-shadow 0.18s, background-color 0.18s;
+      background-color: #f9fafb;
     }
+
     input:focus {
-      border-color: #f973a7;
-      box-shadow: 0 0 0 2px rgba(249, 115, 167, 0.2);
+      border-color: var(--primary);
+      background-color: #ffffff;
+      box-shadow: 0 0 0 1px rgba(236, 72, 153, 0.3);
     }
+
     button {
       width: 100%;
       margin-top: 4px;
-      padding: 8px 12px;
+      padding: 9px 12px;
       border-radius: 999px;
       border: none;
-      background: #f973a7;
-      color: #fff;
+      background: linear-gradient(135deg, #ec4899, #f97316);
+      color: #ffffff;
       font-size: 0.95rem;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(249,115,167,0.4);
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      box-shadow: 0 10px 24px rgba(236, 72, 153, 0.45);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
+
     button:hover {
-      background: #fb82b1;
+      filter: brightness(1.02);
     }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: 0 6px 18px rgba(236, 72, 153, 0.35);
+    }
+
+    .btn-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+    }
+
     .msg {
       font-size: 0.8rem;
       margin-top: 8px;
       min-height: 1em;
     }
+
     .msg.ok {
       color: #15803d;
     }
+
     .msg.err {
       color: #b91c1c;
     }
-    a {
+
+    .panel-link {
+      margin-top: 14px;
       font-size: 0.8rem;
-      color: #2563eb;
+      color: var(--text-sub);
+    }
+
+    .panel-link a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .panel-link a:hover {
+      text-decoration: underline;
+    }
+
+    .footnote {
+      margin-top: 12px;
+      font-size: 0.7rem;
+      color: #9ca3af;
     }
   </style>
 </head>
 <body>
   <div class="box">
+    <div class="badge">
+      <span class="badge-dot"></span>
+      Registro único del panel médico
+    </div>
+
     <h1>Registrar Médico</h1>
-    <p>Usá este formulario una sola vez para crear el usuario del médico.</p>
+    <p class="subtitle">
+      Usá este formulario una sola vez para crear el usuario de acceso al panel de turnos.
+    </p>
 
     <form id="formRegister">
       <div class="row">
         <label for="email">Email del médico</label>
-        <input id="email" type="email" required />
+        <input id="email" type="email" placeholder="ejemplo@correo.com" required />
       </div>
       <div class="row">
         <label for="password">Contraseña</label>
-        <input id="password" type="password" required />
+        <input id="password" type="password" placeholder="Mínimo 6 caracteres" required />
       </div>
-      <button type="submit">Registrar</button>
+      <button type="submit">
+        <span class="btn-icon">✔</span>
+        <span>Registrar usuario</span>
+      </button>
       <div id="msg" class="msg"></div>
     </form>
 
-    <p style="margin-top:12px;">
-      Después de registrar, accedé al panel en
-      <a href="/medico.html">/medico.html</a>
+    <p class="panel-link">
+      Una vez creado el usuario, podés acceder al panel en:<br />
+      <a href="https://dravaninazuchelli.netlify.app/medico.html" target="_blank">
+        https://dravaninazuchelli.netlify.app/medico.html
+      </a>
+    </p>
+
+    <p class="footnote">
+      Guardá ese enlace en tus favoritos para acceder rápidamente al panel de turnos.
     </p>
   </div>
 
   <script>
+    const API_BASE = 'https://app-web-doctor.onrender.com';
+    const PANEL_URL = 'https://dravaninazuchelli.netlify.app/medico.html';
+
     const form = document.getElementById('formRegister');
     const msg = document.getElementById('msg');
 
@@ -123,21 +243,31 @@
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
 
+      if (!email || !password) {
+        msg.textContent = 'Completá email y contraseña.';
+        msg.className = 'msg err';
+        return;
+      }
+
       try {
-        const resp = await fetch('/api/register-medico', {
+        const resp = await fetch(`${API_BASE}/api/register-medico`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
         });
 
-        const data = await resp.json();
+        const data = await resp.json().catch(() => ({}));
 
         if (!resp.ok) {
           throw new Error(data.error || 'Error al registrar');
         }
 
-        msg.textContent = data.message || 'Médico registrado correctamente.';
+        msg.textContent = data.message || 'Médico registrado correctamente. Redirigiendo al panel...';
         msg.className = 'msg ok';
+
+        setTimeout(() => {
+          window.location.href = PANEL_URL;
+        }, 1000);
       } catch (err) {
         msg.textContent = err.message;
         msg.className = 'msg err';
