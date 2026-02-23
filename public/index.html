@@ -42,7 +42,6 @@
       box-shadow: 0 12px 30px rgba(244, 114, 182, 0.25);
     }
 
-    /* AVATAR */
     .avatar-wrapper {
       display: flex;
       justify-content: center;
@@ -92,7 +91,6 @@
       line-height: 1.4;
     }
 
-    /* ÍCONOS */
     .icons-row {
       display: flex;
       justify-content: center;
@@ -245,15 +243,11 @@
       </div>
 
       <div class="main-actions">
+        <!-- SOLO botón de Reservar turno arriba -->
         <button id="btnReservarTurno" class="btn btn-primary" type="button">
           <span class="btn-icon">📅</span>
           <span>Reservar turno</span>
         </button>
-
-        <a href="https://wa.me/5492215996743" target="_blank" class="btn btn-secondary">
-          <span class="btn-icon>💬</span>
-          <span>WhatsApp</span>
-        </a>
       </div>
 
       <!-- FORMULARIO -->
@@ -297,6 +291,15 @@
         <p id="bookingMessage" class="booking-message"></p>
       </form>
 
+      <!-- Botón de WhatsApp reubicado abajo, separado -->
+      <a href="https://wa.me/5492215996743"
+         target="_blank"
+         class="btn btn-secondary"
+         style="margin-top: 12px;">
+        <span class="btn-icon">💬</span>
+        <span>WhatsApp del consultorio</span>
+      </a>
+
       <div class="footer-note">Creado por MCNdigitalstudio.</div>
     </div>
   </div>
@@ -310,13 +313,11 @@
     const bookingMessage = document.getElementById('bookingMessage');
     const btnReservarTurno = document.getElementById('btnReservarTurno');
 
-    // Horarios de la doctora: 17:00 a 18:30 cada 15 minutos
     const HORARIOS = ['17:00','17:15','17:30','17:45','18:00','18:15','18:30'];
 
     let turnosCache = [];
     let diasBloqueados = [];
 
-    // 1) Cargar turnos existentes (públicos) desde el backend
     async function cargarTurnosCache() {
       try {
         const res = await fetch(`${API_BASE}/api/turnos-public`, { cache: 'no-store' });
@@ -329,7 +330,6 @@
       }
     }
 
-    // 1.b) Cargar config pública (días bloqueados por la médica)
     async function cargarConfigPublica() {
       try {
         const res = await fetch(`${API_BASE}/api/config-public`, { cache: 'no-store' });
@@ -342,17 +342,14 @@
       }
     }
 
-    // 2) Validar día hábil (martes a viernes)
     function esDiaHabil(fechaStr) {
       if (!fechaStr) return false;
       const [anio, mes, dia] = fechaStr.split('-').map(Number);
       const fecha = new Date(anio, mes - 1, dia);
       const diaSemana = fecha.getDay();
-      // 0 dom, 1 lun, 2 mar, 3 mié, 4 jue, 5 vie, 6 sáb
-      return diaSemana >= 2 && diaSemana <= 5;
+      return diaSemana >= 2 && diaSemana <= 5; // mar a vie
     }
 
-    // 3) Obtener horarios ocupados para una fecha
     function getHorariosOcupadosParaFecha(fechaSeleccionada) {
       if (!fechaSeleccionada) return [];
       return turnosCache
@@ -365,7 +362,6 @@
         .filter(Boolean);
     }
 
-    // 4) Render de horarios disponibles
     function renderHorariosDisponibles() {
       const fechaSeleccionada = inputFecha.value;
       const hoyStr = new Date().toISOString().split('T')[0];
@@ -438,7 +434,6 @@
       });
     }
 
-    // 5) Enviar solicitud de turno
     async function enviarTurno(e) {
       e.preventDefault();
 
@@ -504,7 +499,6 @@
       }
     }
 
-    // 6) Inicialización
     document.addEventListener('DOMContentLoaded', async () => {
       const hoy = new Date().toISOString().split('T')[0];
       inputFecha.min = hoy;
